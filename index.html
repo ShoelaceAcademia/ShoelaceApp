@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SHOELACE CONTROL</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Shoelace">
+    
+    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="icon" type="image/png" href="icon.png">
+
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- ESTILOS VISUALES v5.0 --- */
+        :root {
+            --bg-body: #0a0a0f; --bg-card: #141419; --bg-input: #222228;
+            --text-main: #E0E0E0; --text-muted: #888888;
+            --accent: #00f3ff; --staff-color: #bd00ff;
+            --success: #00ff9d; --danger: #ff3838; --warning: #ffb74d;
+            --radius: 12px; --max-width: 600px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--text-main); 
+            height: 100vh; 
+            overflow: hidden; 
+            font-size: 16px; 
+            display: flex; 
+            justify-content: center;
+            /* CRÍTICO: Respetar el área segura del iPhone (Notch) */
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        #app-wrapper {
+            width: 100%; max-width: var(--max-width); height: 100%;
+            background: var(--bg-body); position: relative; display: flex; flex-direction: column;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+        }
+
+        .font-brand { font-family: 'Orbitron', sans-serif; letter-spacing: 1px; }
+        .text-accent { color: var(--accent); }
+        .text-staff { color: var(--staff-color); }
+        .text-muted { color: var(--text-muted); font-size: 0.85rem;}
+        .hidden { display: none !important; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+
+        /* UI Elements */
+        button { border: none; outline: none; cursor: pointer; font-family: 'Inter', sans-serif; transition: 0.2s; }
+        button:active { transform: scale(0.96); }
+        .btn-primary { background: var(--accent); color: #000; font-weight: 700; padding: 14px; border-radius: var(--radius); width: 100%; font-size: 1rem; box-shadow: 0 0 15px rgba(0, 243, 255, 0.2); }
+        .btn-icon { background: transparent; color: white; font-size: 1.5rem; padding: 5px; }
+        .btn-text { background: transparent; color: var(--accent); font-weight: 600; padding: 10px; }
+        .btn-small { padding: 5px 10px; border-radius: 6px; font-size: 0.75rem; background: #333; color: white; border: 1px solid #555; }
+        
+        select, input, textarea { width: 100%; background: var(--bg-input); color: white; padding: 12px; border-radius: 8px; border: 1px solid #333; font-size: 1rem; margin-bottom: 10px; font-family: 'Inter', sans-serif; }
+        select:focus, input:focus, textarea:focus { border-color: var(--accent); outline: none; }
+        .card { background: var(--bg-card); border-radius: var(--radius); padding: 16px; margin-bottom: 15px; border: 1px solid #222; }
+
+        /* Tags */
+        .tag { padding: 3px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600; margin-right: 5px; text-transform: uppercase; display: inline-block;}
+        .tag-days { background: rgba(0, 243, 255, 0.1); color: var(--accent); border: 1px solid rgba(0, 243, 255, 0.3); }
+        .tag-role { background: rgba(189, 0, 255, 0.1); color: var(--staff-color); border: 1px solid rgba(189, 0, 255, 0.3); }
+        .tag-group { background: #2a2a2a; color: #aaa; border: 1px solid #444; }
+
+        /* Header & Nav */
+        header { padding: 15px 20px; background: var(--bg-card); border-bottom: 1px solid #222; height: 60px; display: flex; align-items: center; justify-content: space-between; z-index: 10; }
+        #main-scroll { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 90px; }
+        .bottom-nav { position: fixed; bottom: env(safe-area-inset-bottom); left: 0; right: 0; margin: 0 auto; max-width: var(--max-width); height: 75px; background: var(--bg-card); border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; z-index: 100; padding-bottom: 5px; }
+        .nav-item { color: #666; text-decoration: none; font-size: 0.65rem; display: flex; flex-direction: column; align-items: center; gap: 5px; width: 20%; padding: 5px; transition: 0.2s; }
+        .nav-item.active { color: var(--accent); }
+        .nav-icon { font-size: 1.4rem; }
+
+        /* Date Navigator */
+        .date-navigator { display: flex; justify-content: space-between; align-items: center; background: var(--bg-input); border-radius: var(--radius); padding: 5px; margin-bottom: 15px; cursor: pointer; border: 1px solid transparent; }
+        .date-navigator:hover { border-color: #444; }
+        .nav-arrow { width: 44px; height: 44px; color: var(--accent); background: transparent; font-size: 1.5rem; display: flex; justify-content: center; align-items: center; }
+        
+        /* Listas */
+        .list-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #222; }
+        .check-btn { width: 42px; height: 42px; border-radius: 50%; border: 2px solid #333; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; flex-shrink: 0; transition: background 0.2s; cursor: pointer; }
+        .check-btn.present { background: var(--success); border-color: var(--success); color: #000; }
+        .check-btn.absent { background: var(--bg-input); border-color: var(--danger); color: var(--danger); }
+        .disabled-mode .check-btn { pointer-events: none; opacity: 0.7; }
+        .disabled-mode .check-btn.absent { opacity: 0.3; }
+        .disabled-mode #physical-log { pointer-events: none; opacity: 0.8; background: #1a1a20; }
+
+        /* Pizarra */
+        #tactic-wrapper { position: relative; width: 100%; height: 65vh; background: #2e7d32; border-radius: 8px; overflow: hidden; border: 4px solid #fff; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
+        #tactic-canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+        .tactic-toolbar { position: absolute; bottom: 15px; left: 15px; right: 15px; background: rgba(0,0,0,0.8); padding: 10px; border-radius: 30px; display: flex; gap: 15px; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
+        .color-dot { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; transition: transform 0.2s;}
+        .color-dot.active { transform: scale(1.3); border-color: var(--accent); }
+
+        /* File Upload */
+        .file-zone { border: 2px dashed #333; padding: 30px 20px; text-align: center; border-radius: var(--radius); margin-bottom: 15px; position: relative; transition: 0.2s; }
+        .file-zone:active { background: #222; border-color: var(--accent); }
+        .file-zone input { position: absolute; width: 100%; height: 100%; top: 0; left: 0; opacity: 0; cursor: pointer; }
+        .file-item { background: #222; padding: 12px; margin-bottom: 8px; border-radius: 8px; display: flex; align-items: center; gap: 10px; border: 1px solid #333; }
+
+        /* Material */
+        .qty-btn { width: 32px; height: 32px; background: #333; color: white; border-radius: 6px; display:flex; justify-content:center; align-items:center;}
+        .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #555; display: inline-block; margin-right: 6px; }
+
+        /* Modals & Login */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 5000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: 0.3s; }
+        .modal.active { opacity: 1; pointer-events: auto; }
+        .modal-content { background: var(--bg-card); width: 90%; max-width: 450px; padding: 25px; border-radius: var(--radius); max-height: 90vh; overflow-y: auto; border: 1px solid #333; }
+        .tab-header { display: flex; margin-bottom: 20px; border-bottom: 1px solid #333; }
+        .tab-btn { flex: 1; padding: 12px; background: transparent; color: #666; border-bottom: 2px solid transparent; font-weight: 600;}
+        .tab-btn.active { color: var(--accent); border-color: var(--accent); }
+
+        #login-screen { position: absolute; top:0; left:0; width:100%; height:100%; background: var(--bg-body); z-index: 2000; display:flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; }
+        .login-btn-group { display: flex; flex-direction: column; gap: 15px; width: 100%; margin-top: 40px; }
+        .login-option { padding: 20px; background: var(--bg-input); border: 1px solid #333; border-radius: var(--radius); text-align: center; cursor: pointer; transition: 0.2s; }
+        .login-option:hover { border-color: var(--accent); background: #1a1a20; }
+
+        /* Calendar Grid */
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
+        .cal-day-name { color: #666; font-size: 0.8rem; padding-bottom: 10px; }
+        .cal-day { padding: 10px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
+        .cal-day:hover { background: #333; }
+        .cal-day.active { background: var(--accent); color: #000; font-weight: bold; }
+
+    </style>
+</head>
+<body>
+
+    <div id="app-wrapper">
+
+        <div id="login-screen">
+            <h1 class="font-brand text-accent" style="font-size: 3rem; text-shadow: 0 0 20px var(--accent-dim);">SHOELACE</h1>
+            <p class="text-muted">CONTROL APP v5.0</p>
+            <div class="login-btn-group">
+                <div class="login-option" onclick="auth.loginAsStaff()">
+                    <span style="font-size:2rem; display:block; margin-bottom:10px;">👁️</span>
+                    <strong>ACCESO STAFF</strong>
+                    <div class="text-muted" style="font-size:0.8rem;">Solo lectura</div>
+                </div>
+                <div class="login-option" onclick="auth.showAdminPass()">
+                    <span style="font-size:2rem; display:block; margin-bottom:10px;">🔐</span>
+                    <strong>ACCESO ADMIN</strong>
+                    <div class="text-muted" style="font-size:0.8rem;">Gestión completa</div>
+                </div>
+            </div>
+        </div>
+
+        <header>
+            <div class="font-brand text-accent" style="font-size: 1.2rem;">SHOELACE <span style="font-size:0.7em; color:white;">CTRL</span></div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div id="user-role-badge" class="tag" style="background:#333;">INVITADO</div>
+                <button id="btn-admin" class="btn-icon hidden">⚙️</button>
+                <button id="btn-logout" class="btn-icon" style="color:var(--danger); font-size:1.2rem;" onclick="window.location.reload()">⏻</button>
+            </div>
+        </header>
+
+        <div id="main-scroll">
+            
+            <section id="section-players">
+                <div class="card">
+                    <label class="text-muted" style="font-size:0.7rem; margin-bottom:5px; display:block;">CATEGORÍA</label>
+                    <select id="player-category-select">
+                        <option value="alevin">Alevín</option>
+                        <option value="infantil">Infantil</option>
+                        <option value="benjamin">Benjamín</option>
+                        <option value="portero">Porteros</option>
+                        <option value="opengym">Open Gym</option>
+                    </select>
+
+                    <div class="date-navigator" id="open-calendar-btn-1">
+                        <div class="nav-arrow" id="prev-date">&#8249;</div>
+                        <div style="text-align:center; flex:1;">
+                            <strong class="date-display-text" style="font-size:1.1rem; color:white;">Hoy</strong>
+                            <div class="date-display-year text-muted" style="font-size:0.8rem;">...</div>
+                        </div>
+                        <div class="nav-arrow" id="next-date">&#8250;</div>
+                    </div>
+
+                    <div class="flex-between text-muted" style="font-size:0.8rem; margin-bottom:10px;">
+                        <span><span id="player-count" class="text-accent">0</span> Jugadores</span>
+                        <span class="date-status">● Sincronizando...</span>
+                    </div>
+                    <div id="players-list"></div>
+                </div>
+            </section>
+
+            <section id="section-staff" class="hidden">
+                <div class="card">
+                    <h2 class="font-brand text-staff" style="margin-bottom:5px;">Staff Técnico</h2>
+                    <p class="text-muted" style="margin-bottom:15px; font-size:0.8rem;">Cuadrante diario</p>
+                    <div class="date-navigator" id="open-calendar-btn-2" style="background:var(--bg-card); border:1px solid #333;">
+                        <div style="text-align:center; flex:1; padding:5px;">
+                            <strong class="date-display-text">Hoy</strong>
+                            <span class="date-status text-muted" style="font-size:0.7rem; margin-left:10px;"></span>
+                        </div>
+                    </div>
+                    <div id="staff-list"></div>
+                </div>
+            </section>
+
+            <section id="section-physical" class="hidden">
+                <div class="card">
+                    <h2 class="font-brand text-accent">Diario Físico</h2>
+                    <p class="text-muted" style="margin-bottom:15px; font-size:0.8rem;">Registro de cargas</p>
+                    
+                    <div class="date-navigator" id="open-calendar-btn-3" style="background:var(--bg-input); border:1px solid #333; margin-bottom:15px;">
+                        <div style="text-align:center; flex:1; padding:5px;">
+                            <strong class="date-display-text" style="color:white;">Hoy</strong>
+                            <span class="date-display-year text-muted" style="font-size:0.7rem; margin-left:5px;"></span>
+                        </div>
+                    </div>
+
+                    <label class="text-muted" style="font-size:0.75rem;">CATEGORÍA:</label>
+                    <select id="physical-group">
+                        <option value="cadete">Cadete</option>
+                        <option value="infantil">Infantil</option>
+                        <option value="alevin">Alevín</option>
+                    </select>
+                    <textarea id="physical-log" rows="10" placeholder="Escribe aquí el trabajo realizado..."></textarea>
+                    <div style="text-align:right; font-size:0.7rem; color:#666; margin-top:5px;" id="phy-status">Sincronización en tiempo real</div>
+                </div>
+            </section>
+
+            <section id="section-tactical" class="hidden">
+                <div class="card" style="padding:0; overflow:hidden; border:none; background:transparent;">
+                    <div id="tactic-wrapper">
+                        <canvas id="tactic-canvas"></canvas>
+                        <div class="tactic-toolbar">
+                            <div class="color-dot active" style="background:white" data-color="#ffffff"></div>
+                            <div class="color-dot" style="background:#ff3838" data-color="#ff3838"></div>
+                            <div class="color-dot" style="background:#ffff00" data-color="#ffff00"></div>
+                            <div class="color-dot" style="background:#3838ff" data-color="#3838ff"></div>
+                            <button class="btn-small" id="btn-clear-canvas">Limpiar</button>
+                            <button class="btn-small" id="btn-save-canvas" style="background:var(--accent); color:black; font-weight:bold; border:none;">Guardar</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 class="font-brand" style="margin-bottom:10px;">Archivo del Día</h3>
+                    <div class="file-zone admin-only">
+                        <span style="font-size:2rem;">📂</span>
+                        <div style="margin-top:5px; font-weight:bold;">Subir PDF o JPG</div>
+                        <input type="file" id="file-upload-input" accept="image/jpeg, application/pdf">
+                    </div>
+                    <div id="tactical-files-list"></div>
+                </div>
+            </section>
+
+            <section id="section-material" class="hidden">
+                <div class="card">
+                    <h2 class="font-brand text-accent" style="margin-bottom:15px">Inventario</h2>
+                    <div id="material-list"></div>
+                </div>
+            </section>
+        </div>
+
+        <nav class="bottom-nav">
+            <a href="#" class="nav-item active" data-target="players"><span class="nav-icon">⚽</span>Players</a>
+            <a href="#" class="nav-item" data-target="staff"><span class="nav-icon">👔</span>Staff</a>
+            <a href="#" class="nav-item" data-target="physical"><span class="nav-icon">⚡</span>Físico</a>
+            <a href="#" class="nav-item" data-target="tactical"><span class="nav-icon">🧠</span>Táctica</a>
+            <a href="#" class="nav-item" data-target="material"><span class="nav-icon">📦</span>Mat.</a>
+        </nav>
+
+    </div>
+
+    <div id="calendar-modal" class="modal">
+        <div class="modal-content">
+            <div class="custom-calendar-header">
+                <button class="nav-arrow" id="cal-prev-month">&#8249;</button>
+                <h3 class="font-brand" id="cal-month-year">...</h3>
+                <button class="nav-arrow" id="cal-next-month">&#8250;</button>
+            </div>
+            <div class="calendar-grid" id="calendar-grid"></div>
+            <button class="btn-text" style="width:100%; margin-top:20px;" id="close-cal">Cerrar</button>
+        </div>
+    </div>
+
+    <div id="admin-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex-between" style="margin-bottom:20px;">
+                <h3 class="font-brand text-accent" id="modal-title">Gestión</h3>
+                <button class="btn-icon" id="close-admin">✕</button>
+            </div>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <div id="history-modal" class="modal">
+        <div class="modal-content">
+            <div class="flex-between" style="margin-bottom:10px;">
+                <h3 class="font-brand text-accent" id="h-modal-name">Nombre</h3>
+                <button class="btn-icon" id="close-history">✕</button>
+            </div>
+            <div class="text-muted" style="font-size:0.8rem; margin-bottom:20px;" id="h-modal-details"></div>
+            <div style="display:flex; gap:10px; margin-bottom:20px;">
+                <div style="flex:1; background:#222; padding:10px; border-radius:8px; text-align:center;">
+                    <div class="text-muted" style="font-size:0.7rem;">Asistencia</div>
+                    <div style="font-size:1.5rem; font-weight:bold; color:var(--success);" id="h-modal-percent">...</div>
+                </div>
+                <div style="flex:1; background:#222; padding:10px; border-radius:8px; text-align:center;">
+                    <div class="text-muted" style="font-size:0.7rem;">Faltas</div>
+                    <div style="font-size:1.5rem; font-weight:bold; color:var(--danger);" id="h-modal-absent">...</div>
+                </div>
+            </div>
+            <h4 style="margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:5px; font-size:0.9rem;">Historial</h4>
+            <div id="h-modal-list" style="max-height: 200px; overflow-y:auto; font-size:0.85rem;"></div>
+            <button class="btn-text admin-only" style="color:var(--danger); width:100%; margin-top:20px;" id="btn-delete-entity">Eliminar de la Base de Datos</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, addDoc, writeBatch, getDocs, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // FIREBASE CONFIG
+        const firebaseConfig = {
+          apiKey: "AIzaSyC9_Dkfxvi_5tvhWjmxAZJJGk-seAyPjdo",
+          authDomain: "shoelace-controlapp.firebaseapp.com",
+          projectId: "shoelace-controlapp",
+          storageBucket: "shoelace-controlapp.firebasestorage.app",
+          messagingSenderId: "1014248660250",
+          appId: "1:1014248660250:web:f815a12d472630515b20a3"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // CONFIGURACIÓN
+        const ADMIN_PASS = "shoelace2024";
+        const state = {
+            isAdmin: false,
+            currentSection: 'players',
+            currentDate: new Date().toISOString().split('T')[0],
+            calendarViewDate: new Date(),
+            players: [], staff: [], material: [], tacticalFiles: [],
+            attendance: {}, staffAttendance: {},
+            selectedEntityId: null, selectedEntityType: null, brushColor: '#ffffff',
+            physicalUnsubscribe: null
+        };
+
+        const dayMap = { 0: 'D', 1: 'L', 2: 'M', 3: 'X', 4: 'J', 5: 'V', 6: 'S' };
+        function getDayCodeFromDate(dateStr) { return dayMap[new Date(dateStr).getDay()]; }
+
+        // AUTH
+        window.auth = {
+            loginAsStaff: () => {
+                state.isAdmin = false;
+                document.getElementById('user-role-badge').innerText = "STAFF";
+                applyPermissions(); document.getElementById('login-screen').style.display = 'none';
+            },
+            showAdminPass: () => {
+                const pass = prompt("Contraseña de Administrador:");
+                if(pass === ADMIN_PASS) {
+                    state.isAdmin = true;
+                    document.getElementById('user-role-badge').innerText = "ADMIN";
+                    document.getElementById('user-role-badge').style.background = "var(--accent)";
+                    document.getElementById('user-role-badge').style.color = "#000";
+                    applyPermissions(); document.getElementById('login-screen').style.display = 'none';
+                } else alert("Error.");
+            }
+        };
+
+        function applyPermissions() {
+            if(state.isAdmin) {
+                document.getElementById('btn-admin').classList.remove('hidden');
+                document.body.classList.remove('disabled-mode');
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+            } else {
+                document.getElementById('btn-admin').classList.add('hidden');
+                document.body.classList.add('disabled-mode');
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.add('hidden'));
+            }
+            renderPlayersList(); renderStaffList();
+        }
+
+        // FECHAS (FIXED ISO)
+        function getLocalISODate(date) {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            return `${y}-${m}-${d}`;
+        }
+
+        function updateDateUI() {
+            const dateObj = new Date(state.currentDate);
+            const options = { weekday: 'long', day: 'numeric', month: 'short' };
+            const display = dateObj.toLocaleDateString('es-ES', options);
+            const formatted = display.charAt(0).toUpperCase() + display.slice(1);
+            
+            document.querySelectorAll('.date-display-text').forEach(el => el.innerText = formatted);
+            document.querySelectorAll('.date-display-year').forEach(el => el.innerText = dateObj.getFullYear());
+            
+            const today = getLocalISODate(new Date());
+            const statusText = (state.currentDate === today) ? '● En vivo' : '↺ Historial';
+            document.querySelectorAll('.date-status').forEach(el => {
+                el.innerHTML = statusText;
+                el.style.color = (state.currentDate === today) ? 'var(--success)' : 'var(--text-muted)';
+            });
+            
+            loadDailyData();
+        }
+
+        function loadDailyData() {
+            onSnapshot(doc(db, "attendance", state.currentDate), (s) => { 
+                state.attendance = s.exists() ? s.data() : {}; renderPlayersList(); 
+            });
+            onSnapshot(doc(db, "attendance_staff", state.currentDate), (s) => { 
+                state.staffAttendance = s.exists() ? s.data() : {}; renderStaffList(); 
+            });
+            loadTacticalFiles();
+            initPhysicalListener();
+        }
+
+        function initPhysicalListener() {
+            if (state.physicalUnsubscribe) state.physicalUnsubscribe();
+            const g = document.getElementById('physical-group').value;
+            const docId = `${state.currentDate}_${g}`;
+            state.physicalUnsubscribe = onSnapshot(doc(db, "physical_logs", docId), (docSnap) => {
+                const text = docSnap.exists() ? docSnap.data().text : '';
+                if (document.activeElement !== document.getElementById('physical-log')) {
+                    document.getElementById('physical-log').value = text;
+                }
+            });
+        }
+
+        // RENDERERS
+        function renderPlayersList() {
+            const cat = document.getElementById('player-category-select').value;
+            const list = document.getElementById('players-list'); list.innerHTML = '';
+            const dayCode = getDayCodeFromDate(state.currentDate);
+            const filtered = state.players.filter(p => {
+                if(p.category !== cat) return false;
+                if(!p.days || p.days === 'S/D' || p.days === 'Todos') return true;
+                return p.days.includes(dayCode);
+            });
+            document.getElementById('player-count').innerText = filtered.length;
+            if(filtered.length === 0) { list.innerHTML = `<div style="text-align:center; padding:30px; color:#444;">Sin jugadores asignados (${dayCode}).</div>`; return; }
+            filtered.forEach(p => {
+                const st = state.attendance[p.id] || 'present';
+                const el = document.createElement('div'); el.className = 'list-row';
+                el.innerHTML = `<div style="flex:1; cursor:pointer;"><div style="font-weight:500;">${p.name}</div><div style="margin-top:2px;"><span class="tag tag-days">${p.days||'General'}</span></div></div><div class="check-btn ${st}">${st==='present'?'✓':'✕'}</div>`;
+                el.querySelector('div').onclick = () => openHistory(p, 'player');
+                if(state.isAdmin) el.querySelector('.check-btn').onclick = () => toggleAttendance(p.id, st, 'player');
+                list.appendChild(el);
+            });
+        }
+
+        function renderStaffList() {
+            const list = document.getElementById('staff-list'); list.innerHTML = '';
+            const dayCode = getDayCodeFromDate(state.currentDate);
+            const filtered = state.staff.filter(s => {
+                if(!s.days || s.days.toUpperCase() === 'TODOS') return true;
+                return s.days.toUpperCase().includes(dayCode);
+            });
+            if(filtered.length === 0) { list.innerHTML = `<div style="text-align:center; padding:30px; color:#444;">Sin staff hoy.</div>`; return; }
+            filtered.forEach(s => {
+                const st = state.staffAttendance[s.id] || 'present';
+                const el = document.createElement('div'); el.className = 'list-row';
+                el.innerHTML = `<div style="flex:1; cursor:pointer;"><div style="font-weight:500;">${s.name}</div><div style="margin-top:4px;"><span class="tag tag-role">${s.role}</span><span class="tag tag-group">${s.group||'-'}</span></div></div><div class="check-btn ${st}">${st==='present'?'✓':'✕'}</div>`;
+                el.querySelector('div').onclick = () => openHistory(s, 'staff');
+                if(state.isAdmin) el.querySelector('.check-btn').onclick = () => toggleAttendance(s.id, st, 'staff');
+                list.appendChild(el);
+            });
+        }
+
+        async function loadTacticalFiles() {
+            const q = query(collection(db, "tactical_daily"), where("date", "==", state.currentDate));
+            const snap = await getDocs(q);
+            const c = document.getElementById('tactical-files-list'); c.innerHTML = '';
+            if(snap.empty) { c.innerHTML = '<div style="text-align:center; padding:10px; color:#444;">Sin archivos hoy.</div>'; return; }
+            snap.forEach(docSnap => {
+                const f = {id: docSnap.id, ...docSnap.data()};
+                const isImg = f.type.includes('image');
+                const div = document.createElement('div'); div.className = 'file-item';
+                div.innerHTML = `<span class="file-icon">${isImg?'🖼️':'📄'}</span><div style="flex:1; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size:0.9rem;">${f.name}</div>${state.isAdmin ? `<button class="btn-small" style="background:#500; border-color:#700;">✕</button>` : ''}`;
+                if(state.isAdmin) div.querySelector('button').onclick = async (e) => { e.stopPropagation(); await deleteDoc(doc(db, "tactical_daily", f.id)); loadTacticalFiles(); };
+                div.onclick = () => {
+                    const win = window.open();
+                    if(isImg) win.document.write(`<img src="${f.data}" style="max-width:100%">`);
+                    else win.document.write(`<iframe src="${f.data}" style="width:100%;height:100%;border:0;"></iframe>`);
+                };
+                c.appendChild(div);
+            });
+        }
+
+        // ACTIONS
+        async function toggleAttendance(id, current, type) {
+            if(!state.isAdmin) return;
+            const next = current === 'present' ? 'absent' : 'present';
+            const col = type === 'player' ? 'attendance' : 'attendance_staff';
+            const histCol = type === 'player' ? 'players' : 'staff';
+            await setDoc(doc(db, col, state.currentDate), { [id]: next }, { merge: true });
+            await setDoc(doc(db, `${histCol}/${id}/history`, state.currentDate), { date: state.currentDate, status: next });
+        }
+
+        async function importCSV() {
+            const txt = document.getElementById('csv-txt').value; if(!txt) return;
+            const batch = writeBatch(db); let count=0;
+            const lines = txt.split('\n');
+            lines.forEach(line => {
+                let p = line.includes('\t') ? line.split('\t') : line.split(',');
+                if(p.length >= 3) {
+                    const name = p[0].trim();
+                    const days = p[1].trim().toUpperCase();
+                    let cat = p[2].trim().toLowerCase();
+                    if(cat.includes('alevi')) cat='alevin';
+                    if(cat.includes('benja')) cat='benjamin';
+                    if(cat.includes('open')) cat='opengym';
+                    if(cat.includes('infan')) cat='infantil';
+                    if(cat.includes('porte')) cat='portero';
+                    if(name && cat) {
+                        const ref = doc(collection(db,"players"));
+                        batch.set(ref, {name, days, category:cat, createdAt:new Date()});
+                        count++;
+                    }
+                }
+            });
+            await batch.commit(); alert(`Procesados ${count} jugadores.`); document.getElementById('admin-modal').classList.remove('active');
+        }
+
+        // INIT
+        function initTacticalBoard() {
+            const cv = document.getElementById('tactic-canvas'), cx = cv.getContext('2d');
+            new ResizeObserver(() => { cv.width=cv.parentElement.offsetWidth; cv.height=cv.parentElement.offsetHeight; drawField(cx,cv.width,cv.height); }).observe(cv.parentElement);
+            function drawField(ctx, w, h) {
+                ctx.fillStyle = "#2e7d32"; ctx.fillRect(0,0,w,h);
+                ctx.fillStyle = "rgba(0,0,0,0.05)"; for(let i=0; i<w; i+=w/12) ctx.fillRect(i,0,w/24,h);
+                ctx.strokeStyle = "rgba(255,255,255,0.7)"; ctx.lineWidth = 2; const p=20;
+                ctx.strokeRect(p,p,w-p*2,h-p*2); ctx.beginPath(); ctx.moveTo(p,h/2); ctx.lineTo(w-p,h/2); ctx.stroke();
+                ctx.beginPath(); ctx.arc(w/2,h/2,w*0.1,0,Math.PI*2); ctx.stroke();
+                const bw=w*0.5, bh=h*0.15; ctx.strokeRect((w-bw)/2, p, bw, bh); ctx.beginPath(); ctx.arc(w/2, p+bh, w*0.08, 0, Math.PI, false); ctx.stroke();
+                ctx.strokeRect((w-bw)/2, h-p-bh, bw, bh); ctx.beginPath(); ctx.arc(w/2, h-p-bh, w*0.08, Math.PI, 0, false); ctx.stroke();
+            }
+            let isD=false; const pos = (e) => { const r=cv.getBoundingClientRect(), t=e.touches?e.touches[0]:e; return {x:t.clientX-r.left, y:t.clientY-r.top}; };
+            const mv = (e) => { if(!isD)return; e.preventDefault(); cx.lineTo(pos(e).x, pos(e).y); cx.strokeStyle=state.brushColor; cx.lineWidth=3; cx.stroke(); };
+            cv.addEventListener('mousedown', (e)=>{isD=true; cx.beginPath(); cx.moveTo(pos(e).x,pos(e).y);}); cv.addEventListener('mousemove', mv); window.addEventListener('mouseup', ()=>isD=false);
+            cv.addEventListener('touchstart', (e)=>{isD=true; cx.beginPath(); cx.moveTo(pos(e).x,pos(e).y);}, {passive:false}); cv.addEventListener('touchmove', mv, {passive:false}); window.addEventListener('touchend', ()=>isD=false);
+            document.getElementById('btn-clear-canvas').onclick = () => drawField(cx,cv.width,cv.height);
+            document.getElementById('btn-save-canvas').onclick = async() => {
+                if(!state.isAdmin) return;
+                const d = cv.toDataURL("image/png"); await addDoc(collection(db,"tactical_daily"), {date:state.currentDate, type:"image/png", name:"Pizarra " + new Date().toLocaleTimeString(), data:d}); loadTacticalFiles(); alert("Guardado");
+            };
+            document.querySelectorAll('.color-dot').forEach(d => d.onclick = () => { state.brushColor=d.dataset.color; document.querySelectorAll('.color-dot').forEach(x=>x.classList.remove('active')); d.classList.add('active'); });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initTacticalBoard();
+            onSnapshot(collection(db, "players"), (s)=>{state.players=[]; s.forEach(d=>state.players.push({id:d.id, ...d.data()})); updateDateUI();});
+            onSnapshot(collection(db, "staff"), (s)=>{state.staff=[]; s.forEach(d=>state.staff.push({id:d.id, ...d.data()})); updateDateUI();});
+            onSnapshot(collection(db, "material"), (s)=>{state.material=[]; s.forEach(d=>state.material.push({id:d.id, ...d.data()})); 
+                const l = document.getElementById('material-list'); l.innerHTML=''; 
+                state.material.forEach(m=>{
+                    let col = m.status==='good'?'#00ff9d':'orange';
+                    const d=document.createElement('div'); d.className='list-row';
+                    d.innerHTML=`<div style="flex:1;">${m.name}<br><span style="font-size:0.7rem;color:#888"><span class="status-dot" style="background:${col}"></span>${m.status.toUpperCase()}</span></div><div style="display:flex;gap:10px;"><button class="qty-btn dec">-</button><span>${m.qty}</span><button class="qty-btn inc">+</button></div>`;
+                    if(state.isAdmin){
+                        d.querySelector('.dec').onclick=()=>updateDoc(doc(db,"material",m.id),{qty:m.qty-1});
+                        d.querySelector('.inc').onclick=()=>updateDoc(doc(db,"material",m.id),{qty:m.qty+1});
+                    }
+                    l.appendChild(d);
+                });
+            });
+
+            document.querySelectorAll('.nav-item').forEach(b => b.onclick = () => {
+                document.querySelectorAll('section').forEach(s=>s.classList.add('hidden'));
+                document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+                const t=b.dataset.target; document.getElementById('section-'+t).classList.remove('hidden'); b.classList.add('active');
+                state.currentSection=t; if(t==='physical') initPhysicalListener(); updateDateUI();
+            });
+
+            document.getElementById('physical-log').oninput = async (e) => {
+                if(!state.isAdmin) return;
+                const g = document.getElementById('physical-group').value;
+                await setDoc(doc(db, "physical_logs", `${state.currentDate}_${g}`), { text: e.target.value });
+                const s=document.getElementById('phy-status'); s.innerText="Guardado ✓"; setTimeout(()=>s.innerText="Sincronización en tiempo real", 1500);
+            };
+            document.getElementById('physical-group').onchange = initPhysicalListener;
+
+            // FIX: LISTENER INSTANTANEO SELECT
+            const catSelect = document.getElementById('player-category-select');
+            catSelect.addEventListener('change', () => { 
+                renderPlayersList(); 
+            });
+
+            const chDate=(d)=>{ 
+                const dt = new Date(state.currentDate); 
+                dt.setDate(dt.getDate()+d); 
+                state.currentDate = getLocalISODate(dt);
+                updateDateUI(); 
+            };
+            document.getElementById('prev-date').onclick=()=>chDate(-1); document.getElementById('next-date').onclick=()=>chDate(1);
+            
+            const openCal = () => { state.calendarViewDate = new Date(state.currentDate); renderCal(); document.getElementById('calendar-modal').classList.add('active'); };
+            document.getElementById('open-calendar-btn-1').onclick=openCal;
+            document.getElementById('open-calendar-btn-2').onclick=openCal;
+            document.getElementById('open-calendar-btn-3').onclick=openCal;
+            document.getElementById('close-cal').onclick=()=>document.getElementById('calendar-modal').classList.remove('active');
+            
+            document.getElementById('cal-prev-month').onclick=()=>{ state.calendarViewDate.setMonth(state.calendarViewDate.getMonth()-1); renderCal(); };
+            document.getElementById('cal-next-month').onclick=()=>{ state.calendarViewDate.setMonth(state.calendarViewDate.getMonth()+1); renderCal(); };
+
+            document.getElementById('btn-admin').onclick=openAdmin;
+            document.getElementById('close-admin').onclick=()=>document.getElementById('admin-modal').classList.remove('active');
+            document.getElementById('close-history').onclick=()=>document.getElementById('history-modal').classList.remove('active');
+            document.getElementById('btn-delete-entity').onclick=async()=>{
+                if(confirm("¿Eliminar definitivamente?")) {
+                    await deleteDoc(doc(db, state.selectedEntityType==='player'?'players':'staff', state.selectedEntityId));
+                    document.getElementById('history-modal').classList.remove('active');
+                }
+            };
+
+            document.getElementById('file-upload-input').onchange = (e) => {
+                if(!state.isAdmin) return;
+                const f = e.target.files[0]; if(!f) return;
+                if(f.size > 500*1024) { alert("Archivo muy grande. Máx 500KB."); return; }
+                const r = new FileReader();
+                r.onload = async(evt) => { await addDoc(collection(db,"tactical_daily"),{date:state.currentDate, name:f.name, type:f.type, data:evt.target.result}); loadTacticalFiles(); };
+                r.readAsDataURL(f);
+            };
+        });
+
+        function renderCal(){
+            const y = state.calendarViewDate.getFullYear(), m = state.calendarViewDate.getMonth();
+            document.getElementById('cal-month-year').innerText = `${y} / ${m+1}`;
+            const g = document.getElementById('calendar-grid'); g.innerHTML='';
+            ['L','M','X','J','V','S','D'].forEach(d=>g.innerHTML+=`<div class="cal-day-name">${d}</div>`);
+            let firstDay = new Date(y, m, 1).getDay(); 
+            let start = firstDay === 0 ? 6 : firstDay - 1;
+            const daysInMonth = new Date(y, m+1, 0).getDate();
+            for(let i=0; i<start; i++) g.innerHTML+=`<div class="cal-day"></div>`;
+            for(let d=1; d<=daysInMonth; d++){
+                const monthStr = String(m + 1).padStart(2, '0');
+                const dayStr = String(d).padStart(2, '0');
+                const isoDate = `${y}-${monthStr}-${dayStr}`;
+                const div=document.createElement('div'); div.className='cal-day'; div.innerText=d;
+                if(isoDate === state.currentDate) div.classList.add('active');
+                div.onclick=()=>{ state.currentDate = isoDate; updateDateUI(); document.getElementById('calendar-modal').classList.remove('active'); };
+                g.appendChild(div);
+            }
+        }
+
+        function openAdmin() {
+            const body=document.getElementById('modal-body'), title=document.getElementById('modal-title');
+            document.getElementById('admin-modal').classList.add('active');
+            if(state.currentSection==='players'){
+                title.innerText="Jugadores"; body.innerHTML=`<div class="tab-header"><button class="tab-btn active" id="tm">Manual</button><button class="tab-btn" id="tc">Excel</button></div><div id="vm"><input id="n-n" placeholder="Nombre"><select id="n-c"><option value="alevin">Alevín</option><option value="infantil">Infantil</option><option value="benjamin">Benjamín</option><option value="portero">Porteros</option><option value="opengym">Open Gym</option></select><input id="n-d" placeholder="Días (L, M, X, J, V)"><button class="btn-primary" id="b-save">Crear</button></div><div id="vc" class="hidden"><p class="text-muted" style="margin-bottom:10px;">Formato: <b>Nombre, Días, Categoría</b><br>Ej: Alvaro Serrano, M, Benjamin</p><textarea id="csv-txt" rows="5"></textarea><button class="btn-primary" id="b-csv">Importar</button></div>`;
+                document.getElementById('tm').onclick=()=>{document.getElementById('vc').classList.add('hidden');document.getElementById('vm').classList.remove('hidden')};
+                document.getElementById('tc').onclick=()=>{document.getElementById('vm').classList.add('hidden');document.getElementById('vc').classList.remove('hidden')};
+                document.getElementById('b-save').onclick=async()=>{ await addDoc(collection(db,"players"),{name:document.getElementById('n-n').value, category:document.getElementById('n-c').value, days:document.getElementById('n-d').value.toUpperCase()}); document.getElementById('admin-modal').classList.remove('active'); };
+                document.getElementById('b-csv').onclick=importCSV;
+            } else if(state.currentSection==='staff'){
+                title.innerText="Staff"; body.innerHTML=`<input id="s-n" placeholder="Nombre"><input id="s-r" placeholder="Rol"><select id="s-g"><option value="General">General</option><option value="Alevín">Alevín</option><option value="Infantil">Infantil</option></select><input id="s-d" placeholder="Días (L, M, X...)"><button class="btn-primary" id="b-s">Crear</button>`;
+                document.getElementById('b-s').onclick=async()=>{ await addDoc(collection(db,"staff"),{name:document.getElementById('s-n').value, role:document.getElementById('s-r').value, group:document.getElementById('s-g').value, days:document.getElementById('s-d').value.toUpperCase()}); document.getElementById('admin-modal').classList.remove('active'); };
+            } else if(state.currentSection==='material'){
+                title.innerText="Material"; body.innerHTML=`<input id="m-n" placeholder="Item"><input id="m-q" type="number"><button class="btn-primary" id="b-m">Crear</button>`;
+                document.getElementById('b-m').onclick=async()=>{ await addDoc(collection(db,"material"),{name:document.getElementById('m-n').value, qty:Number(document.getElementById('m-q').value), status:'good'}); document.getElementById('admin-modal').classList.remove('active'); };
+            }
+        }
+        
+        window.openHistory = async function(entity, type) {
+            state.selectedEntityId = entity.id; state.selectedEntityType = type;
+            document.getElementById('h-modal-name').innerText = entity.name;
+            document.getElementById('history-modal').classList.add('active');
+            const d = document.getElementById('h-modal-details');
+            if(type==='player') d.innerHTML = `${entity.category.toUpperCase()} | ${entity.days}`;
+            else d.innerHTML = `${entity.role} | ${entity.group} | ${entity.days}`;
+            
+            const col = type==='player'?'players':'staff';
+            const snap = await getDocs(query(collection(db, `${col}/${entity.id}/history`)));
+            const list = document.getElementById('h-modal-list'); list.innerHTML = '';
+            let t=0, a=0, rec=[]; snap.forEach(x=>rec.push(x.data())); rec.sort((x,y)=>y.date.localeCompare(x.date));
+            rec.forEach(r=>{ t++; if(r.status==='absent') a++; list.innerHTML+=`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #333;"><span>${r.date}</span><span style="color:${r.status==='present'?'var(--success)':'var(--danger)'}">${r.status==='present'?'Asistió':'Falta'}</span></div>`; });
+            document.getElementById('h-modal-percent').innerText = t===0?"100%":Math.round(((t-a)/t)*100)+"%";
+            document.getElementById('h-modal-absent').innerText = a;
+        };
+
+    </script>
+</body>
+</html>
