@@ -15,7 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
     <style>
-        /* ESTILOS v5.6 (Final Signature Edition) */
+        /* ESTILOS v6.2 (Smart Merge Fix) */
         :root { --bg-body: #0a0a0f; --bg-card: #141419; --bg-input: #222228; --text-main: #E0E0E0; --text-muted: #888888; --accent: #00f3ff; --staff-color: #bd00ff; --success: #00ff9d; --danger: #ff3838; --warning: #ffb74d; --radius: 12px; --max-width: 600px; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); height: 100vh; overflow: hidden; font-size: 16px; display: flex; justify-content: center; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
@@ -42,7 +42,7 @@
         header { padding: 15px 20px; background: var(--bg-card); border-bottom: 1px solid #222; height: 60px; display: flex; align-items: center; justify-content: space-between; z-index: 10; }
         #main-scroll { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 90px; }
         .bottom-nav { position: fixed; bottom: env(safe-area-inset-bottom); left: 0; right: 0; margin: 0 auto; max-width: var(--max-width); height: 75px; background: var(--bg-card); border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; z-index: 100; padding-bottom: 5px; }
-        .nav-item { color: #666; text-decoration: none; font-size: 0.65rem; display: flex; flex-direction: column; align-items: center; gap: 5px; width: 20%; padding: 5px; transition: 0.2s; }
+        .nav-item { color: #666; text-decoration: none; font-size: 0.65rem; display: flex; flex-direction: column; align-items: center; gap: 5px; width: 16%; padding: 5px; transition: 0.2s; }
         .nav-item.active { color: var(--accent); }
         .nav-icon { font-size: 1.4rem; }
         .date-navigator { display: flex; justify-content: space-between; align-items: center; background: var(--bg-input); border-radius: var(--radius); padding: 5px; margin-bottom: 15px; cursor: pointer; border: 1px solid transparent; }
@@ -83,9 +83,15 @@
         
         #section-physical .card { display: flex; flex-direction: column; height: calc(100vh - 170px); }
         #physical-log { flex: 1; resize: none; margin-bottom: 10px; }
-        
-        /* ESTILO FIRMA */
         .signature { margin-top: 40px; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; color: #444; opacity: 0.7; letter-spacing: 2px; }
+
+        /* ESTILOS BALANCE */
+        .balance-item { background: #1a1a20; border: 1px solid #333; border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
+        .balance-header { padding: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .balance-details { background: #111; padding: 0 12px; max-height: 0; overflow: hidden; transition: 0.3s; font-size: 0.85rem; border-top: 1px solid transparent;}
+        .balance-item.open .balance-details { padding: 12px; max-height: 200px; border-color: #333; }
+        .bal-stat { display: flex; gap: 10px; font-size: 0.8rem; }
+        .bal-stat span { display: flex; align-items: center; gap: 4px; }
     </style>
 </head>
 <body>
@@ -93,7 +99,7 @@
     <div id="app-wrapper">
         <div id="login-screen">
             <h1 class="font-brand text-accent" style="font-size: 3rem; text-shadow: 0 0 20px var(--accent-dim);">SHOELACE</h1>
-            <p class="text-muted">CONTROL APP v5.6</p>
+            <p class="text-muted">CONTROL APP v6.2</p>
             <div class="login-btn-group">
                 <div class="login-option" onclick="auth.loginAsStaff()"><span style="font-size:2rem; display:block; margin-bottom:10px;">👁️</span><strong>ACCESO STAFF</strong><div class="text-muted" style="font-size:0.8rem;">Solo lectura</div></div>
                 <div class="login-option" onclick="auth.showAdminPass()"><span style="font-size:2rem; display:block; margin-bottom:10px;">🔐</span><strong>ACCESO ADMIN</strong><div class="text-muted" style="font-size:0.8rem;">Gestión completa</div></div>
@@ -157,6 +163,38 @@
             <section id="section-material" class="hidden">
                 <div class="card"><h2 class="font-brand text-accent" style="margin-bottom:15px">Inventario</h2><div id="material-list"></div></div>
             </section>
+            
+            <section id="section-balance" class="hidden">
+                <div class="card">
+                    <h2 class="font-brand text-accent" style="margin-bottom:5px;">Balance Mensual</h2>
+                    <p class="text-muted" style="margin-bottom:15px; font-size:0.8rem;">Control de asistencia y faltas</p>
+                    
+                    <div class="date-navigator">
+                        <div class="nav-arrow" id="bal-prev">&#8249;</div>
+                        <div style="text-align:center; flex:1;">
+                            <strong id="bal-month-txt" style="font-size:1.1rem; color:white;">...</strong>
+                        </div>
+                        <div class="nav-arrow" id="bal-next">&#8250;</div>
+                    </div>
+                    
+                    <div class="tab-header" style="margin-bottom:15px;">
+                        <button class="tab-btn active" id="tab-bal-staff">Staff</button>
+                        <button class="tab-btn" id="tab-bal-players">Jugadores</button>
+                    </div>
+
+                    <select id="balance-category-select" class="hidden" style="margin-bottom:15px;">
+                        <option value="alevin">Alevín</option>
+                        <option value="infantil">Infantil</option>
+                        <option value="benjamin">Benjamín</option>
+                        <option value="portero">Porteros</option>
+                        <option value="opengym">Open Gym</option>
+                    </select>
+
+                    <div id="balance-list">
+                        <div style="text-align:center; padding:20px; color:#666;">Cargando datos...</div>
+                    </div>
+                </div>
+            </section>
         </div>
 
         <nav class="bottom-nav">
@@ -165,28 +203,23 @@
             <a href="#" class="nav-item" data-target="physical"><span class="nav-icon">⚡</span>Físico</a>
             <a href="#" class="nav-item" data-target="tactical"><span class="nav-icon">🧠</span>Táctica</a>
             <a href="#" class="nav-item" data-target="material"><span class="nav-icon">📦</span>Mat.</a>
+            <a href="#" class="nav-item" data-target="balance"><span class="nav-icon">📊</span>Balance</a>
         </nav>
     </div>
 
     <div id="calendar-modal" class="modal"><div class="modal-content"><div class="custom-calendar-header"><button class="nav-arrow" id="cal-prev-month">&#8249;</button><h3 class="font-brand" id="cal-month-year">...</h3><button class="nav-arrow" id="cal-next-month">&#8250;</button></div><div class="calendar-grid" id="calendar-grid"></div><button class="btn-text" style="width:100%; margin-top:20px;" id="close-cal">Cerrar</button></div></div>
     <div id="admin-modal" class="modal"><div class="modal-content"><div class="flex-between" style="margin-bottom:20px;"><h3 class="font-brand text-accent" id="modal-title">Gestión</h3><button class="btn-icon" id="close-admin">✕</button></div><div id="modal-body"></div></div></div>
     <div id="history-modal" class="modal"><div class="modal-content"><div class="flex-between" style="margin-bottom:10px;"><h3 class="font-brand text-accent" id="h-modal-name">Nombre</h3><button class="btn-icon" id="close-history">✕</button></div><div class="text-muted" style="font-size:0.8rem; margin-bottom:20px;" id="h-modal-details"></div><div style="display:flex; gap:10px; margin-bottom:20px;"><div style="flex:1; background:#222; padding:10px; border-radius:8px; text-align:center;"><div class="text-muted" style="font-size:0.7rem;">Asistencia (Días)</div><div style="font-size:1.5rem; font-weight:bold; color:var(--success);" id="h-modal-percent">...</div></div><div style="flex:1; background:#222; padding:10px; border-radius:8px; text-align:center;"><div class="text-muted" style="font-size:0.7rem;">Faltas</div><div style="font-size:1.5rem; font-weight:bold; color:var(--danger);" id="h-modal-absent">...</div></div></div><h4 style="margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:5px; font-size:0.9rem;">Historial</h4><div id="h-modal-list" style="max-height: 200px; overflow-y:auto; font-size:0.85rem;"></div><button class="btn-text admin-only" style="color:var(--danger); width:100%; margin-top:20px;" id="btn-delete-entity">Eliminar de la Base de Datos</button></div></div>
-    
-    <div id="file-viewer-modal" class="modal" style="background:black;">
-        <div style="position:absolute; top:40px; right:20px; z-index:5001;">
-            <button id="close-viewer" class="btn-icon" style="background:rgba(255,255,255,0.2); border-radius:50%; width:40px; height:40px; color:white;">✕</button>
-        </div>
-        <div id="viewer-content" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center; overflow:hidden;"></div>
-    </div>
+    <div id="file-viewer-modal" class="modal" style="background:black;"><div style="position:absolute; top:40px; right:20px; z-index:5001;"><button id="close-viewer" class="btn-icon" style="background:rgba(255,255,255,0.2); border-radius:50%; width:40px; height:40px; color:white;">✕</button></div><div id="viewer-content" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center; overflow:hidden;"></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, addDoc, writeBatch, getDocs, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, addDoc, writeBatch, getDocs, where, documentId } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = { apiKey: "AIzaSyC9_Dkfxvi_5tvhWjmxAZJJGk-seAyPjdo", authDomain: "shoelace-controlapp.firebaseapp.com", projectId: "shoelace-controlapp", storageBucket: "shoelace-controlapp.firebasestorage.app", messagingSenderId: "1014248660250", appId: "1:1014248660250:web:f815a12d472630515b20a3" };
         const app = initializeApp(firebaseConfig); const db = getFirestore(app);
         const ADMIN_PASS = "shoelace2024";
-        const state = { isAdmin: false, currentSection: 'players', currentDate: new Date().toISOString().split('T')[0], calendarViewDate: new Date(), players: [], staff: [], material: [], tacticalFiles: [], attendance: {}, staffAttendance: {}, selectedEntityId: null, selectedEntityType: null, brushColor: '#ffffff', physicalUnsubscribe: null };
+        const state = { isAdmin: false, currentSection: 'players', currentDate: new Date().toISOString().split('T')[0], calendarViewDate: new Date(), players: [], staff: [], material: [], tacticalFiles: [], attendance: {}, staffAttendance: {}, selectedEntityId: null, selectedEntityType: null, brushColor: '#ffffff', physicalUnsubscribe: null, balanceDate: new Date(), balanceMode: 'staff' };
         const dayMap = { 0: 'D', 1: 'L', 2: 'M', 3: 'X', 4: 'J', 5: 'V', 6: 'S' };
         function getDayCodeFromDate(dateStr) { return dayMap[new Date(dateStr).getDay()]; }
         function getLocalISODate(date) { const y = date.getFullYear(); const m = String(date.getMonth() + 1).padStart(2, '0'); const d = String(date.getDate()).padStart(2, '0'); return `${y}-${m}-${d}`; }
@@ -209,10 +242,8 @@
             document.querySelectorAll('.date-display-year').forEach(el => el.innerText = dateObj.getFullYear());
             const today = getLocalISODate(new Date());
             document.querySelectorAll('.date-status').forEach(el => { el.innerHTML = (state.currentDate === today) ? '● En vivo' : '↺ Historial'; el.style.color = (state.currentDate === today) ? 'var(--success)' : 'var(--text-muted)'; });
-            
             const cat = document.getElementById('tactical-group-select').value;
             document.getElementById('upload-info').innerText = `Subiendo para: ${formatted} - ${cat.toUpperCase()}`;
-            
             loadDailyData();
         }
 
@@ -230,6 +261,7 @@
             });
         }
 
+        // --- RENDER FUNCTIONS ---
         function renderPlayersList() {
             const cat = document.getElementById('player-category-select').value;
             const list = document.getElementById('players-list'); list.innerHTML = '';
@@ -284,6 +316,108 @@
             });
         }
 
+        // --- BALANCE MODULE LOGIC (SMART MERGE v6.2) ---
+        async function loadBalanceData() {
+            const list = document.getElementById('balance-list');
+            list.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">Calculando...</div>';
+            
+            const year = state.balanceDate.getFullYear();
+            const month = state.balanceDate.getMonth() + 1;
+            const startStr = `${year}-${String(month).padStart(2,'0')}-01`;
+            const endStr = `${year}-${String(month).padStart(2,'0')}-31`;
+            
+            const colName = state.balanceMode === 'staff' ? 'attendance_staff' : 'attendance';
+            const q = query(collection(db, colName), where(documentId(), '>=', startStr), where(documentId(), '<=', endStr));
+            const snapshot = await getDocs(q);
+            
+            // --- SMART MERGE LOGIC START ---
+            let roster = state.balanceMode === 'staff' ? state.staff : state.players;
+            if (state.balanceMode === 'player') {
+                const catFilter = document.getElementById('balance-category-select').value;
+                roster = roster.filter(p => p.category === catFilter);
+            }
+
+            const stats = {}; // Key will be NAME (not ID) to merge duplicates
+            const idToNameMap = {}; // Maps DB-ID to Normalized Name
+
+            roster.forEach(p => {
+                const nameKey = p.name.trim().toUpperCase(); // Normalize for merging
+                idToNameMap[p.id] = nameKey;
+                
+                if (!stats[nameKey]) {
+                    stats[nameKey] = { 
+                        name: p.name, // Keep display name
+                        role: p.role || p.category, 
+                        present: 0, 
+                        absent: 0, 
+                        absentDates: [] 
+                    };
+                }
+            });
+
+            snapshot.forEach(docSnap => {
+                const date = docSnap.id;
+                const data = docSnap.data();
+                const dayName = new Date(date).toLocaleDateString('es-ES', {weekday:'long', day:'numeric'});
+                
+                for (const [id, status] of Object.entries(data)) {
+                    const nameKey = idToNameMap[id]; // Lookup Name by ID
+                    if (nameKey && stats[nameKey]) {
+                        if (status === 'present') stats[nameKey].present++;
+                        if (status === 'absent') {
+                            stats[nameKey].absent++;
+                            stats[nameKey].absentDates.push(dayName);
+                        }
+                    }
+                }
+            });
+            // --- SMART MERGE LOGIC END ---
+
+            list.innerHTML = '';
+            // Sort by attendance count
+            const sortedKeys = Object.keys(stats).sort((a,b) => stats[b].present - stats[a].present);
+            
+            if(sortedKeys.length === 0) { list.innerHTML = '<div style="text-align:center; padding:20px;">No hay datos para esta categoría/mes.</div>'; return; }
+
+            sortedKeys.forEach(key => {
+                const s = stats[key];
+                const item = document.createElement('div');
+                item.className = 'balance-item';
+                
+                let detailsHTML = '';
+                if(s.absent > 0) {
+                    // Deduplicate dates in case of double entry
+                    const uniqueDates = [...new Set(s.absentDates)]; 
+                    detailsHTML = `<div style="margin-bottom:5px; color:var(--danger); font-weight:bold;">Faltas registradas:</div><ul style="padding-left:20px; margin:0; list-style:circle;">${uniqueDates.map(d=>`<li>${d}</li>`).join('')}</ul>`;
+                } else {
+                    detailsHTML = `<div style="color:#666; font-style:italic;">Sin faltas registradas este mes.</div>`;
+                }
+
+                item.innerHTML = `
+                    <div class="balance-header" onclick="this.parentElement.classList.toggle('open')">
+                        <div>
+                            <div style="font-weight:600; color:white;">${s.name}</div>
+                            <div class="text-muted" style="font-size:0.75rem;">${s.role}</div>
+                        </div>
+                        <div class="bal-stat">
+                            <span style="color:var(--success)">✅ ${s.present}</span>
+                            <span style="color:var(--danger)">❌ ${s.absent}</span>
+                        </div>
+                    </div>
+                    <div class="balance-details">${detailsHTML}</div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function renderBalanceUI() {
+            const dateStr = state.balanceDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+            document.getElementById('bal-month-txt').innerText = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+            loadBalanceData();
+        }
+
+        // --- COMMON LOGIC ---
+
         async function toggleAttendance(id, current, type) {
             const next = current === 'present' ? 'absent' : 'present';
             const col = type === 'player' ? 'attendance' : 'attendance_staff';
@@ -300,11 +434,9 @@
             let files = [];
             snap.forEach(docSnap => { files.push({id: docSnap.id, ...docSnap.data()}); });
             const filteredFiles = files.filter(f => f.category === currentCat);
-            
             const dateObj = new Date(state.currentDate);
             const formatted = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'short' });
             document.getElementById('upload-info').innerText = `Subiendo para: ${formatted} - ${currentCat.toUpperCase()}`;
-
             if(filteredFiles.length === 0) { c.innerHTML = `<div style="text-align:center; padding:10px; color:#444;">Sin archivos para ${currentCat}.</div>`; return; }
             filteredFiles.forEach(f => {
                 const isImg = f.type.includes('image');
@@ -312,11 +444,8 @@
                 const div = document.createElement('div'); div.className = 'file-item';
                 div.innerHTML = `<span class="file-icon">${isImg?'🖼️':'📄'}</span><div style="flex:1; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size:0.9rem;">${f.name} <span class="tag tag-group" style="font-size:0.6rem; margin-left:5px;">${dayCode}</span></div>${state.isAdmin ? `<button class="btn-small" style="background:#500; border-color:#700;">✕</button>` : ''}`;
                 if(state.isAdmin) div.querySelector('button').onclick = async (e) => { e.stopPropagation(); await deleteDoc(doc(db, "tactical_daily", f.id)); loadTacticalFiles(); };
-                
                 div.onclick = () => { 
-                    const vModal = document.getElementById('file-viewer-modal');
-                    const vContent = document.getElementById('viewer-content');
-                    vContent.innerHTML = '';
+                    const vModal = document.getElementById('file-viewer-modal'); const vContent = document.getElementById('viewer-content'); vContent.innerHTML = '';
                     if(isImg) { vContent.innerHTML = `<img src="${f.data}" style="max-width:100%; max-height:100%; object-fit:contain;">`; } 
                     else { vContent.innerHTML = `<iframe src="${f.data}" style="width:100%; height:100%; border:none; background:white;"></iframe>`; }
                     vModal.classList.add('active');
@@ -337,9 +466,7 @@
             
             document.getElementById('btn-clear-canvas').onclick=()=>drawField(cx,cv.width,cv.height);
             document.getElementById('btn-save-canvas').onclick=async()=>{
-                if(!state.isAdmin)return;
-                const cat = document.getElementById('tactical-group-select').value;
-                const d = cv.toDataURL("image/png"); 
+                if(!state.isAdmin)return; const cat = document.getElementById('tactical-group-select').value; const d = cv.toDataURL("image/png"); 
                 await addDoc(collection(db,"tactical_daily"),{date:state.currentDate, category:cat, type:"image/png",name:"Pizarra "+new Date().toLocaleTimeString(),data:d});
                 loadTacticalFiles(); alert("Guardado en " + cat.toUpperCase());
             };
@@ -352,7 +479,9 @@
             document.querySelectorAll('.nav-item').forEach(b => b.onclick = () => {
                 document.querySelectorAll('section').forEach(s=>s.classList.add('hidden')); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
                 const t=b.dataset.target; document.getElementById('section-'+t).classList.remove('hidden'); b.classList.add('active');
-                state.currentSection=t; if(t==='physical') initPhysicalListener(); updateDateUI();
+                state.currentSection=t; if(t==='physical') initPhysicalListener(); 
+                if(t==='balance') renderBalanceUI();
+                else updateDateUI();
             });
 
             document.getElementById('physical-log').oninput = async (e) => { if(!state.isAdmin)return; const g=document.getElementById('physical-group').value; await setDoc(doc(db,"physical_logs",`${state.currentDate}_${g}`),{text:e.target.value}); document.getElementById('phy-status').innerText="Guardado ✓"; setTimeout(()=>document.getElementById('phy-status').innerText="Sincronización en tiempo real",1500); };
@@ -361,12 +490,8 @@
             document.getElementById('tactical-group-select').addEventListener('change', loadTacticalFiles);
 
             document.getElementById('file-upload-input').onchange = (e) => { 
-                if(!state.isAdmin)return; 
-                const f=e.target.files[0]; if(!f||f.size>500*1024){alert("Máx 500KB");return;} 
-                const cat = document.getElementById('tactical-group-select').value;
-                const r=new FileReader(); 
-                r.onload=async(evt)=>{await addDoc(collection(db,"tactical_daily"),{date:state.currentDate, category:cat, name:f.name,type:f.type,data:evt.target.result});loadTacticalFiles();}; 
-                r.readAsDataURL(f); 
+                if(!state.isAdmin)return; const f=e.target.files[0]; if(!f||f.size>500*1024){alert("Máx 500KB");return;} const cat = document.getElementById('tactical-group-select').value; const r=new FileReader(); 
+                r.onload=async(evt)=>{await addDoc(collection(db,"tactical_daily"),{date:state.currentDate, category:cat, name:f.name,type:f.type,data:evt.target.result});loadTacticalFiles();}; r.readAsDataURL(f); 
             };
 
             const chDate=(d)=>{ const dt=new Date(state.currentDate); dt.setDate(dt.getDate()+d); state.currentDate=getLocalISODate(dt); updateDateUI(); };
@@ -381,12 +506,29 @@
             document.getElementById('close-admin').onclick=()=>document.getElementById('admin-modal').classList.remove('active');
             document.getElementById('close-history').onclick=()=>document.getElementById('history-modal').classList.remove('active');
             document.getElementById('btn-delete-entity').onclick=async()=>{ if(confirm("¿Eliminar definitivamente?")) { await deleteDoc(doc(db, state.selectedEntityType==='player'?'players':'staff', state.selectedEntityId)); document.getElementById('history-modal').classList.remove('active'); }};
+            document.getElementById('close-viewer').onclick=()=>{ document.getElementById('file-viewer-modal').classList.remove('active'); document.getElementById('viewer-content').innerHTML = ''; };
+
+            // LISTENERS BALANCE
+            document.getElementById('bal-prev').onclick = () => { state.balanceDate.setMonth(state.balanceDate.getMonth()-1); renderBalanceUI(); };
+            document.getElementById('bal-next').onclick = () => { state.balanceDate.setMonth(state.balanceDate.getMonth()+1); renderBalanceUI(); };
             
-            // CLOSE VIEWER
-            document.getElementById('close-viewer').onclick=()=>{
-                document.getElementById('file-viewer-modal').classList.remove('active');
-                document.getElementById('viewer-content').innerHTML = '';
+            document.getElementById('tab-bal-staff').onclick = () => { 
+                state.balanceMode = 'staff'; 
+                document.getElementById('tab-bal-staff').classList.add('active'); 
+                document.getElementById('tab-bal-players').classList.remove('active');
+                document.getElementById('balance-category-select').classList.add('hidden'); // Ocultar filtro
+                renderBalanceUI(); 
             };
+            
+            document.getElementById('tab-bal-players').onclick = () => { 
+                state.balanceMode = 'player'; 
+                document.getElementById('tab-bal-players').classList.add('active'); 
+                document.getElementById('tab-bal-staff').classList.remove('active');
+                document.getElementById('balance-category-select').classList.remove('hidden'); // Mostrar filtro
+                renderBalanceUI(); 
+            };
+
+            document.getElementById('balance-category-select').onchange = renderBalanceUI;
         });
 
         function renderCal(){
