@@ -15,7 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
     <style>
-        /* ESTILOS v8.0 (Safe Staff Roster) */
+        /* ESTILOS v8.1 (Player Safe Delete) */
         :root { --bg-body: #0a0a0f; --bg-card: #141419; --bg-input: #222228; --text-main: #E0E0E0; --text-muted: #888888; --accent: #00f3ff; --staff-color: #bd00ff; --success: #00ff9d; --danger: #ff3838; --warning: #ffb74d; --event-gold: #ffd700; --radius: 12px; --max-width: 600px; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); height: 100vh; overflow: hidden; font-size: 16px; display: flex; justify-content: center; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
@@ -109,12 +109,11 @@
         .btn-export { background: #222; border: 1px solid #444; color: var(--text-main); padding: 10px; width: 100%; border-radius: 8px; text-align: left; margin-bottom: 8px; transition: 0.2s; }
         .btn-export:active { background: var(--accent); color: black; }
 
-        /* BUTTON DEL STAFF (v8.0) */
-        .btn-del-staff { background: transparent; border: none; color: var(--danger); font-size: 1.1rem; padding: 5px; cursor: pointer; transition: transform 0.2s; margin-right: 10px; display: none; }
-        .btn-del-staff:active { transform: scale(0.9); }
-        .admin-mode .btn-del-staff { display: block; }
+        /* BUTTONS DEL & RESTORE (Unified v8.1) */
+        .btn-del-item { background: transparent; border: none; color: var(--danger); font-size: 1.1rem; padding: 5px; cursor: pointer; transition: transform 0.2s; margin-right: 10px; display: none; }
+        .btn-del-item:active { transform: scale(0.9); }
+        .admin-mode .btn-del-item { display: block; }
         
-        /* RESTORE SECTION */
         .restore-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #333; color: #666; font-size: 0.85rem; }
         .btn-restore { background: transparent; border: 1px solid #444; color: var(--accent); border-radius: 4px; padding: 2px 8px; cursor: pointer; }
     </style>
@@ -124,7 +123,7 @@
     <div id="app-wrapper">
         <div id="login-screen">
             <h1 class="font-brand text-accent" style="font-size: 3rem; text-shadow: 0 0 20px var(--accent-dim);">SHOELACE</h1>
-            <p class="text-muted">CONTROL APP v8.0</p>
+            <p class="text-muted">CONTROL APP v8.1</p>
             <div class="login-btn-group">
                 <div class="login-option" onclick="auth.loginAsStaff()"><span style="font-size:2rem; display:block; margin-bottom:10px;">👁️</span><strong>ACCESO STAFF</strong><div class="text-muted" style="font-size:0.8rem;">Solo lectura</div></div>
                 <div class="login-option" onclick="auth.showAdminPass()"><span style="font-size:2rem; display:block; margin-bottom:10px;">🔐</span><strong>ACCESO ADMIN</strong><div class="text-muted" style="font-size:0.8rem;">Gestión completa</div></div>
@@ -149,6 +148,10 @@
                     <div class="date-navigator" id="open-calendar-btn-1"><div class="nav-arrow" id="prev-date">&#8249;</div><div style="text-align:center; flex:1;"><strong class="date-display-text" style="font-size:1.1rem; color:white;">Hoy</strong><div class="date-display-year text-muted" style="font-size:0.8rem;">...</div></div><div class="nav-arrow" id="next-date">&#8250;</div></div>
                     <div class="flex-between text-muted" style="font-size:0.8rem; margin-bottom:10px;"><span><span id="player-count" class="text-accent">0</span> Jugadores</span><span class="date-status">● Sync...</span></div>
                     <div id="players-list"></div>
+                    <div id="player-hidden-list" class="admin-only" style="margin-top:20px; display:none;">
+                        <h4 class="text-muted" style="font-size:0.7rem; border-bottom:1px solid #333; padding-bottom:5px;">EXCLUIDOS HOY</h4>
+                        <div id="player-hidden-container"></div>
+                    </div>
                 </div>
             </section>
 
@@ -304,18 +307,65 @@
         function renderPlayersList() {
             const cat = document.getElementById('player-category-select').value;
             const list = document.getElementById('players-list'); list.innerHTML = '';
+            const hiddenContainer = document.getElementById('player-hidden-container'); hiddenContainer.innerHTML = '';
+            const hiddenSection = document.getElementById('player-hidden-list');
+
             const dayCode = getDayCodeFromDate(state.currentDate);
             const filtered = state.players.filter(p => p.category === cat && (!p.days || p.days === 'S/D' || p.days === 'Todos' || p.days.includes(dayCode)));
             document.getElementById('player-count').innerText = filtered.length;
-            if(filtered.length === 0) { list.innerHTML = `<div style="text-align:center; padding:30px; color:#444;">Sin jugadores (${dayCode}).</div>`; return; }
+            
+            let hasHidden = false;
+
             filtered.forEach(p => {
                 const st = state.attendance[p.id] || 'present';
+                
+                // HIDE LOGIC FOR PLAYERS
+                if(st === 'hidden') {
+                    hasHidden = true;
+                    if(state.isAdmin) {
+                        const row = document.createElement('div');
+                        row.className = 'restore-row';
+                        row.innerHTML = `<span>${p.name}</span><button class="btn-restore" data-id="${p.id}">🔄 Restaurar</button>`;
+                        row.querySelector('.btn-restore').onclick = async () => {
+                            await setDoc(doc(db, "attendance", state.currentDate), { [p.id]: 'present' }, { merge: true });
+                        };
+                        hiddenContainer.appendChild(row);
+                    }
+                    return; // Skip rendering in main list
+                }
+
                 const el = document.createElement('div'); el.className = 'list-row';
-                el.innerHTML = `<div style="flex:1; cursor:pointer;"><div style="font-weight:500;">${p.name}</div><div style="margin-top:2px;"><span class="tag tag-days">${p.days||'General'}</span></div></div><div class="check-btn ${st}">${st==='present'?'✓':'✕'}</div>`;
+                let deleteBtn = '';
+                if(state.isAdmin) { deleteBtn = `<button class="btn-del-item btn-del-player" data-id="${p.id}" data-name="${p.name}">🗑️</button>`; }
+
+                el.innerHTML = `
+                    <div style="flex:1; cursor:pointer;">
+                        <div style="font-weight:500;">${p.name}</div>
+                        <div style="margin-top:2px;"><span class="tag tag-days">${p.days||'General'}</span></div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        ${deleteBtn}
+                        <div class="check-btn ${st}">${st==='present'?'✓':'✕'}</div>
+                    </div>
+                `;
+                
                 el.querySelector('div').onclick = () => openHistory(p, 'player');
-                if(state.isAdmin) el.querySelector('.check-btn').onclick = () => toggleAttendance(p.id, st, 'player');
+                
+                if(state.isAdmin) {
+                    el.querySelector('.check-btn').onclick = () => toggleAttendance(p.id, st, 'player');
+                    // SAFE HIDE LOGIC
+                    el.querySelector('.btn-del-player').onclick = async (e) => {
+                        e.stopPropagation();
+                        if(confirm(`¿Sacar a ${p.name} de la lista de HOY? (No se borra su historial)`)) {
+                            await setDoc(doc(db, "attendance", state.currentDate), { [p.id]: 'hidden' }, { merge: true });
+                        }
+                    };
+                }
                 list.appendChild(el);
             });
+
+            if(hasHidden && state.isAdmin) hiddenSection.style.display = 'block'; else hiddenSection.style.display = 'none';
+            if(list.children.length === 0 && !hasHidden) { list.innerHTML = `<div style="text-align:center; padding:30px; color:#444;">Sin jugadores (${dayCode}).</div>`; }
         }
 
         function renderStaffList() {
@@ -331,7 +381,6 @@
             filtered.forEach(s => {
                 const st = state.staffAttendance[s.id] || 'present';
                 
-                // IF HIDDEN, DONT SHOW IN MAIN LIST, SHOW IN RESTORE LIST
                 if(st === 'hidden') {
                     hasHidden = true;
                     if(state.isAdmin) {
@@ -343,12 +392,12 @@
                         };
                         hiddenContainer.appendChild(row);
                     }
-                    return; // Skip rendering in main list
+                    return; 
                 }
 
                 const el = document.createElement('div'); el.className = 'list-row';
                 let deleteBtn = '';
-                if(state.isAdmin) { deleteBtn = `<button class="btn-del-staff" data-id="${s.id}" data-name="${s.name}">🗑️</button>`; }
+                if(state.isAdmin) { deleteBtn = `<button class="btn-del-item btn-del-staff" data-id="${s.id}" data-name="${s.name}">🗑️</button>`; }
 
                 el.innerHTML = `
                     <div style="flex:1; cursor:pointer;">
@@ -365,11 +414,9 @@
                 
                 if(state.isAdmin) {
                     el.querySelector('.check-btn').onclick = () => toggleAttendance(s.id, st, 'staff');
-                    // BUTTON HIDE LOGIC (DOES NOT DELETE FROM DB)
                     el.querySelector('.btn-del-staff').onclick = async (e) => {
                         e.stopPropagation();
                         if(confirm(`¿Sacar a ${s.name} de la lista de HOY? (No se borra su historial)`)) {
-                            // Mark as HIDDEN for today only
                             await setDoc(doc(db, "attendance_staff", state.currentDate), { [s.id]: 'hidden' }, { merge: true });
                         }
                     };
@@ -444,7 +491,6 @@
                             stats[nameKey].absent++;
                             stats[nameKey].absentDates.push(dayName);
                         }
-                        // Hidden status is ignored (counts as neither present nor absent)
                     }
                 }
             });
