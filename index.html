@@ -15,7 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
     <style>
-        /* ESTILOS v7.7 (Data Export Added) */
+        /* ESTILOS v7.8 (Staff Delete Added) */
         :root { --bg-body: #0a0a0f; --bg-card: #141419; --bg-input: #222228; --text-main: #E0E0E0; --text-muted: #888888; --accent: #00f3ff; --staff-color: #bd00ff; --success: #00ff9d; --danger: #ff3838; --warning: #ffb74d; --event-gold: #ffd700; --radius: 12px; --max-width: 600px; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); height: 100vh; overflow: hidden; font-size: 16px; display: flex; justify-content: center; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
@@ -115,7 +115,7 @@
     <div id="app-wrapper">
         <div id="login-screen">
             <h1 class="font-brand text-accent" style="font-size: 3rem; text-shadow: 0 0 20px var(--accent-dim);">SHOELACE</h1>
-            <p class="text-muted">CONTROL APP v7.7</p>
+            <p class="text-muted">CONTROL APP v7.8</p>
             <div class="login-btn-group">
                 <div class="login-option" onclick="auth.loginAsStaff()"><span style="font-size:2rem; display:block; margin-bottom:10px;">👁️</span><strong>ACCESO STAFF</strong><div class="text-muted" style="font-size:0.8rem;">Solo lectura</div></div>
                 <div class="login-option" onclick="auth.showAdminPass()"><span style="font-size:2rem; display:block; margin-bottom:10px;">🔐</span><strong>ACCESO ADMIN</strong><div class="text-muted" style="font-size:0.8rem;">Gestión completa</div></div>
@@ -304,9 +304,39 @@
             filtered.forEach(s => {
                 const st = state.staffAttendance[s.id] || 'present';
                 const el = document.createElement('div'); el.className = 'list-row';
-                el.innerHTML = `<div style="flex:1; cursor:pointer;"><div style="font-weight:500;">${s.name}</div><div style="margin-top:4px;"><span class="tag tag-role">${s.role}</span><span class="tag tag-group">${s.group||'-'}</span></div></div><div class="check-btn ${st}">${st==='present'?'✓':'✕'}</div>`;
+                
+                // Add Delete Button for Admin (v7.8)
+                let deleteBtn = '';
+                if(state.isAdmin) {
+                    deleteBtn = `<button class="btn-del-staff" style="background:transparent; border:none; color:#666; font-size:1.1rem; padding:0; cursor:pointer;">🗑️</button>`;
+                }
+
+                el.innerHTML = `
+                    <div style="flex:1; cursor:pointer;">
+                        <div style="font-weight:500;">${s.name}</div>
+                        <div style="margin-top:4px;"><span class="tag tag-role">${s.role}</span><span class="tag tag-group">${s.group||'-'}</span></div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:15px;">
+                        ${deleteBtn}
+                        <div class="check-btn ${st}">${st==='present'?'✓':'✕'}</div>
+                    </div>
+                `;
+                
                 el.querySelector('div').onclick = () => openHistory(s, 'staff');
-                if(state.isAdmin) el.querySelector('.check-btn').onclick = () => toggleAttendance(s.id, st, 'staff');
+                
+                if(state.isAdmin) {
+                    const btnDel = el.querySelector('.btn-del-staff');
+                    if(btnDel) {
+                        btnDel.onclick = async (e) => {
+                            e.stopPropagation();
+                            if(confirm(`¿Eliminar a ${s.name} de la base de datos?`)) {
+                                await deleteDoc(doc(db, "staff", s.id));
+                            }
+                        };
+                    }
+                    el.querySelector('.check-btn').onclick = () => toggleAttendance(s.id, st, 'staff');
+                }
+                
                 list.appendChild(el);
             });
         }
@@ -419,6 +449,7 @@
             loadBalanceData();
         }
 
+        // --- AGENDA MODULE LOGIC (v7.5) ---
         function initAgendaListener() {
             if(state.agendaUnsubscribe) state.agendaUnsubscribe();
             state.agendaUnsubscribe = onSnapshot(collection(db, "agenda"), (snapshot) => {
@@ -580,7 +611,9 @@
                 const dt = document.getElementById('evt-date').value;
                 const tt = document.getElementById('evt-title').value;
                 if(!dt || !tt) return alert("Fecha y Título obligatorios");
+                
                 await addDoc(collection(db, "agenda"), { date: dt, title: tt, type: document.getElementById('evt-type').value, desc: document.getElementById('evt-desc').value });
+                
                 alert("¡Evento guardado!");
                 document.getElementById('event-modal').classList.remove('active');
             };
@@ -697,7 +730,6 @@
                 title.innerText="Material"; body.innerHTML=`<input id="m-n" placeholder="Item"><input id="m-q" type="number"><button class="btn-primary" id="b-m">Crear</button>`;
                 document.getElementById('b-m').onclick=async()=>{ await addDoc(collection(db,"material"),{name:document.getElementById('m-n').value, qty:Number(document.getElementById('m-q').value), status:'good'}); document.getElementById('admin-modal').classList.remove('active'); };
             } else {
-                // Generic Export View if not in a specific section
                 title.innerText="Exportar Datos"; body.innerHTML = exportZoneHTML;
                 setupExportListeners();
             }
