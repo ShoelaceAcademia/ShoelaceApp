@@ -15,8 +15,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
     <style>
-        /* ESTILOS v6.2 (Smart Merge Fix) */
-        :root { --bg-body: #0a0a0f; --bg-card: #141419; --bg-input: #222228; --text-main: #E0E0E0; --text-muted: #888888; --accent: #00f3ff; --staff-color: #bd00ff; --success: #00ff9d; --danger: #ff3838; --warning: #ffb74d; --radius: 12px; --max-width: 600px; }
+        /* ESTILOS v7.7 (Data Export Added) */
+        :root { --bg-body: #0a0a0f; --bg-card: #141419; --bg-input: #222228; --text-main: #E0E0E0; --text-muted: #888888; --accent: #00f3ff; --staff-color: #bd00ff; --success: #00ff9d; --danger: #ff3838; --warning: #ffb74d; --event-gold: #ffd700; --radius: 12px; --max-width: 600px; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); height: 100vh; overflow: hidden; font-size: 16px; display: flex; justify-content: center; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
         #app-wrapper { width: 100%; max-width: var(--max-width); height: 100%; background: var(--bg-body); position: relative; display: flex; flex-direction: column; box-shadow: 0 0 50px rgba(0,0,0,0.5); }
@@ -42,9 +42,9 @@
         header { padding: 15px 20px; background: var(--bg-card); border-bottom: 1px solid #222; height: 60px; display: flex; align-items: center; justify-content: space-between; z-index: 10; }
         #main-scroll { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 90px; }
         .bottom-nav { position: fixed; bottom: env(safe-area-inset-bottom); left: 0; right: 0; margin: 0 auto; max-width: var(--max-width); height: 75px; background: var(--bg-card); border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; z-index: 100; padding-bottom: 5px; }
-        .nav-item { color: #666; text-decoration: none; font-size: 0.65rem; display: flex; flex-direction: column; align-items: center; gap: 5px; width: 16%; padding: 5px; transition: 0.2s; }
+        .nav-item { color: #666; text-decoration: none; font-size: 0.6rem; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 14%; padding: 5px 2px; transition: 0.2s; white-space: nowrap; }
         .nav-item.active { color: var(--accent); }
-        .nav-icon { font-size: 1.4rem; }
+        .nav-icon { font-size: 1.3rem; }
         .date-navigator { display: flex; justify-content: space-between; align-items: center; background: var(--bg-input); border-radius: var(--radius); padding: 5px; margin-bottom: 15px; cursor: pointer; border: 1px solid transparent; }
         .nav-arrow { width: 44px; height: 44px; color: var(--accent); background: transparent; font-size: 1.5rem; display: flex; justify-content: center; align-items: center; }
         .list-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #222; }
@@ -85,13 +85,29 @@
         #physical-log { flex: 1; resize: none; margin-bottom: 10px; }
         .signature { margin-top: 40px; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; color: #444; opacity: 0.7; letter-spacing: 2px; }
 
-        /* ESTILOS BALANCE */
         .balance-item { background: #1a1a20; border: 1px solid #333; border-radius: 8px; margin-bottom: 8px; overflow: hidden; }
         .balance-header { padding: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .balance-details { background: #111; padding: 0 12px; max-height: 0; overflow: hidden; transition: 0.3s; font-size: 0.85rem; border-top: 1px solid transparent;}
         .balance-item.open .balance-details { padding: 12px; max-height: 200px; border-color: #333; }
         .bal-stat { display: flex; gap: 10px; font-size: 0.8rem; }
         .bal-stat span { display: flex; align-items: center; gap: 4px; }
+        
+        .agenda-item { display: flex; gap: 15px; margin-bottom: 15px; align-items: flex-start; }
+        .agenda-date { min-width: 50px; text-align: center; font-size: 0.85rem; font-weight: bold; color: var(--text-muted); padding-top: 5px; }
+        .agenda-card { flex: 1; background: #1a1a20; border-radius: 8px; padding: 12px; padding-bottom: 35px; border-left: 4px solid #555; position: relative; }
+        .agenda-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+        .agenda-card h4 { margin: 0; font-size: 1rem; color: white; flex: 1; padding-right: 10px; }
+        .agenda-card p { margin: 0; font-size: 0.85rem; color: #aaa; line-height: 1.4; }
+        .agenda-card .type-tag { font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; background: #333; text-transform: uppercase; white-space: nowrap; flex-shrink: 0;}
+        .agenda-card .btn-del-evt { position:absolute; bottom:5px; right:5px; background:transparent; color:#666; border:none; font-size:1.1rem; padding:5px; cursor:pointer; opacity: 0.7;}
+        .agenda-card .btn-del-evt:hover { color: var(--danger); transform: scale(1.1); opacity: 1; }
+        .type-training { border-left-color: var(--accent); }
+        .type-match { border-left-color: var(--danger); }
+        .type-event { border-left-color: var(--event-gold); }
+        .type-holiday { border-left-color: #555; }
+        
+        .btn-export { background: #222; border: 1px solid #444; color: var(--text-main); padding: 10px; width: 100%; border-radius: 8px; text-align: left; margin-bottom: 8px; transition: 0.2s; }
+        .btn-export:active { background: var(--accent); color: black; }
     </style>
 </head>
 <body>
@@ -99,7 +115,7 @@
     <div id="app-wrapper">
         <div id="login-screen">
             <h1 class="font-brand text-accent" style="font-size: 3rem; text-shadow: 0 0 20px var(--accent-dim);">SHOELACE</h1>
-            <p class="text-muted">CONTROL APP v6.2</p>
+            <p class="text-muted">CONTROL APP v7.7</p>
             <div class="login-btn-group">
                 <div class="login-option" onclick="auth.loginAsStaff()"><span style="font-size:2rem; display:block; margin-bottom:10px;">👁️</span><strong>ACCESO STAFF</strong><div class="text-muted" style="font-size:0.8rem;">Solo lectura</div></div>
                 <div class="login-option" onclick="auth.showAdminPass()"><span style="font-size:2rem; display:block; margin-bottom:10px;">🔐</span><strong>ACCESO ADMIN</strong><div class="text-muted" style="font-size:0.8rem;">Gestión completa</div></div>
@@ -150,6 +166,14 @@
                 </div>
                 <div class="card">
                     <h3 class="font-brand" style="margin-bottom:5px;">Archivo del Día</h3>
+                    <div class="date-navigator" id="open-calendar-btn-4" style="margin-bottom:15px; background:var(--bg-input); border:1px solid #333;">
+                        <div class="nav-arrow" id="tac-prev-date">&#8249;</div>
+                        <div style="text-align:center; flex:1;">
+                            <strong class="date-display-text" style="color:white;">Hoy</strong>
+                            <div class="date-display-year text-muted" style="font-size:0.7rem;">...</div>
+                        </div>
+                        <div class="nav-arrow" id="tac-next-date">&#8250;</div>
+                    </div>
                     <label class="text-muted" style="font-size:0.7rem; display:block; margin-bottom:5px;">FILTRAR / SUBIR PARA:</label>
                     <select id="tactical-group-select" style="margin-bottom:15px;"><option value="alevin">Alevín</option><option value="infantil">Infantil</option><option value="benjamin">Benjamín</option><option value="portero">Porteros</option><option value="opengym">Open Gym</option></select>
                     <div class="file-zone admin-only">
@@ -168,42 +192,34 @@
                 <div class="card">
                     <h2 class="font-brand text-accent" style="margin-bottom:5px;">Balance Mensual</h2>
                     <p class="text-muted" style="margin-bottom:15px; font-size:0.8rem;">Control de asistencia y faltas</p>
-                    
+                    <div class="date-navigator"><div class="nav-arrow" id="bal-prev">&#8249;</div><div style="text-align:center; flex:1;"><strong id="bal-month-txt" style="font-size:1.1rem; color:white;">...</strong></div><div class="nav-arrow" id="bal-next">&#8250;</div></div>
+                    <div class="tab-header" style="margin-bottom:15px;"><button class="tab-btn active" id="tab-bal-staff">Staff</button><button class="tab-btn" id="tab-bal-players">Jugadores</button></div>
+                    <select id="balance-category-select" class="hidden" style="margin-bottom:15px;"><option value="alevin">Alevín</option><option value="infantil">Infantil</option><option value="benjamin">Benjamín</option><option value="portero">Porteros</option><option value="opengym">Open Gym</option></select>
+                    <div id="balance-list"><div style="text-align:center; padding:20px; color:#666;">Cargando datos...</div></div>
+                </div>
+            </section>
+            
+            <section id="section-agenda" class="hidden">
+                <div class="card">
+                    <h2 class="font-brand text-accent" style="margin-bottom:5px;">Planificador</h2>
+                    <p class="text-muted" style="margin-bottom:15px; font-size:0.8rem;">Agenda mensual y eventos</p>
                     <div class="date-navigator">
-                        <div class="nav-arrow" id="bal-prev">&#8249;</div>
-                        <div style="text-align:center; flex:1;">
-                            <strong id="bal-month-txt" style="font-size:1.1rem; color:white;">...</strong>
-                        </div>
-                        <div class="nav-arrow" id="bal-next">&#8250;</div>
-                    </div>
-                    
-                    <div class="tab-header" style="margin-bottom:15px;">
-                        <button class="tab-btn active" id="tab-bal-staff">Staff</button>
-                        <button class="tab-btn" id="tab-bal-players">Jugadores</button>
-                    </div>
-
-                    <select id="balance-category-select" class="hidden" style="margin-bottom:15px;">
-                        <option value="alevin">Alevín</option>
-                        <option value="infantil">Infantil</option>
-                        <option value="benjamin">Benjamín</option>
-                        <option value="portero">Porteros</option>
-                        <option value="opengym">Open Gym</option>
-                    </select>
-
-                    <div id="balance-list">
-                        <div style="text-align:center; padding:20px; color:#666;">Cargando datos...</div>
-                    </div>
+                        <div class="nav-arrow" id="agd-prev">&#8249;</div>
+                        <div style="text-align:center; flex:1;"><strong id="agd-month-txt" style="font-size:1.1rem; color:white;">...</strong></div><div class="nav-arrow" id="agd-next">&#8250;</div></div>
+                    <button id="btn-add-event" class="btn-primary admin-only" style="margin-bottom:20px;">➕ Añadir Evento</button>
+                    <div id="agenda-list"></div>
                 </div>
             </section>
         </div>
 
         <nav class="bottom-nav">
-            <a href="#" class="nav-item active" data-target="players"><span class="nav-icon">⚽</span>Players</a>
-            <a href="#" class="nav-item" data-target="staff"><span class="nav-icon">👔</span>Staff</a>
-            <a href="#" class="nav-item" data-target="physical"><span class="nav-icon">⚡</span>Físico</a>
-            <a href="#" class="nav-item" data-target="tactical"><span class="nav-icon">🧠</span>Táctica</a>
-            <a href="#" class="nav-item" data-target="material"><span class="nav-icon">📦</span>Mat.</a>
-            <a href="#" class="nav-item" data-target="balance"><span class="nav-icon">📊</span>Balance</a>
+            <a href="#" class="nav-item active" data-target="players"><span class="nav-icon">⚽</span>Pla</a>
+            <a href="#" class="nav-item" data-target="staff"><span class="nav-icon">👔</span>Stf</a>
+            <a href="#" class="nav-item" data-target="physical"><span class="nav-icon">⚡</span>Fís</a>
+            <a href="#" class="nav-item" data-target="tactical"><span class="nav-icon">🧠</span>Tac</a>
+            <a href="#" class="nav-item" data-target="material"><span class="nav-icon">📦</span>Mat</a>
+            <a href="#" class="nav-item" data-target="balance"><span class="nav-icon">📊</span>Bal</a>
+            <a href="#" class="nav-item" data-target="agenda"><span class="nav-icon">📅</span>Age</a>
         </nav>
     </div>
 
@@ -211,6 +227,8 @@
     <div id="admin-modal" class="modal"><div class="modal-content"><div class="flex-between" style="margin-bottom:20px;"><h3 class="font-brand text-accent" id="modal-title">Gestión</h3><button class="btn-icon" id="close-admin">✕</button></div><div id="modal-body"></div></div></div>
     <div id="history-modal" class="modal"><div class="modal-content"><div class="flex-between" style="margin-bottom:10px;"><h3 class="font-brand text-accent" id="h-modal-name">Nombre</h3><button class="btn-icon" id="close-history">✕</button></div><div class="text-muted" style="font-size:0.8rem; margin-bottom:20px;" id="h-modal-details"></div><div style="display:flex; gap:10px; margin-bottom:20px;"><div style="flex:1; background:#222; padding:10px; border-radius:8px; text-align:center;"><div class="text-muted" style="font-size:0.7rem;">Asistencia (Días)</div><div style="font-size:1.5rem; font-weight:bold; color:var(--success);" id="h-modal-percent">...</div></div><div style="flex:1; background:#222; padding:10px; border-radius:8px; text-align:center;"><div class="text-muted" style="font-size:0.7rem;">Faltas</div><div style="font-size:1.5rem; font-weight:bold; color:var(--danger);" id="h-modal-absent">...</div></div></div><h4 style="margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:5px; font-size:0.9rem;">Historial</h4><div id="h-modal-list" style="max-height: 200px; overflow-y:auto; font-size:0.85rem;"></div><button class="btn-text admin-only" style="color:var(--danger); width:100%; margin-top:20px;" id="btn-delete-entity">Eliminar de la Base de Datos</button></div></div>
     <div id="file-viewer-modal" class="modal" style="background:black;"><div style="position:absolute; top:40px; right:20px; z-index:5001;"><button id="close-viewer" class="btn-icon" style="background:rgba(255,255,255,0.2); border-radius:50%; width:40px; height:40px; color:white;">✕</button></div><div id="viewer-content" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center; overflow:hidden;"></div></div>
+    
+    <div id="event-modal" class="modal"><div class="modal-content"><h3 class="font-brand text-accent" style="margin-bottom:15px;">Nuevo Evento</h3><label class="text-muted" style="font-size:0.8rem;">FECHA</label><input type="date" id="evt-date"><label class="text-muted" style="font-size:0.8rem;">TÍTULO</label><input type="text" id="evt-title" placeholder="Ej: Salida de balón..."><label class="text-muted" style="font-size:0.8rem;">TIPO</label><select id="evt-type"><option value="training">Entrenamiento 🔵</option><option value="match">Partido 🔴</option><option value="event">Evento / Visita 🟡</option><option value="holiday">Festivo / Descanso ⚫</option></select><label class="text-muted" style="font-size:0.8rem;">DETALLES</label><textarea id="evt-desc" rows="3" placeholder="Opcional..."></textarea><button class="btn-primary" id="btn-save-event" style="margin-top:10px;">Guardar</button><button class="btn-text" id="close-event-modal" style="width:100%;">Cancelar</button></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -219,7 +237,7 @@
         const firebaseConfig = { apiKey: "AIzaSyC9_Dkfxvi_5tvhWjmxAZJJGk-seAyPjdo", authDomain: "shoelace-controlapp.firebaseapp.com", projectId: "shoelace-controlapp", storageBucket: "shoelace-controlapp.firebasestorage.app", messagingSenderId: "1014248660250", appId: "1:1014248660250:web:f815a12d472630515b20a3" };
         const app = initializeApp(firebaseConfig); const db = getFirestore(app);
         const ADMIN_PASS = "shoelace2024";
-        const state = { isAdmin: false, currentSection: 'players', currentDate: new Date().toISOString().split('T')[0], calendarViewDate: new Date(), players: [], staff: [], material: [], tacticalFiles: [], attendance: {}, staffAttendance: {}, selectedEntityId: null, selectedEntityType: null, brushColor: '#ffffff', physicalUnsubscribe: null, balanceDate: new Date(), balanceMode: 'staff' };
+        const state = { isAdmin: false, currentSection: 'players', currentDate: new Date().toISOString().split('T')[0], calendarViewDate: new Date(), players: [], staff: [], material: [], tacticalFiles: [], attendance: {}, staffAttendance: {}, selectedEntityId: null, selectedEntityType: null, brushColor: '#ffffff', physicalUnsubscribe: null, balanceDate: new Date(), balanceMode: 'staff', agendaDate: new Date(), agendaUnsubscribe: null };
         const dayMap = { 0: 'D', 1: 'L', 2: 'M', 3: 'X', 4: 'J', 5: 'V', 6: 'S' };
         function getDayCodeFromDate(dateStr) { return dayMap[new Date(dateStr).getDay()]; }
         function getLocalISODate(date) { const y = date.getFullYear(); const m = String(date.getMonth() + 1).padStart(2, '0'); const d = String(date.getDate()).padStart(2, '0'); return `${y}-${m}-${d}`; }
@@ -261,7 +279,6 @@
             });
         }
 
-        // --- RENDER FUNCTIONS ---
         function renderPlayersList() {
             const cat = document.getElementById('player-category-select').value;
             const list = document.getElementById('players-list'); list.innerHTML = '';
@@ -316,7 +333,6 @@
             });
         }
 
-        // --- BALANCE MODULE LOGIC (SMART MERGE v6.2) ---
         async function loadBalanceData() {
             const list = document.getElementById('balance-list');
             list.innerHTML = '<div style="text-align:center; padding:20px; color:#666;">Calculando...</div>';
@@ -330,28 +346,19 @@
             const q = query(collection(db, colName), where(documentId(), '>=', startStr), where(documentId(), '<=', endStr));
             const snapshot = await getDocs(q);
             
-            // --- SMART MERGE LOGIC START ---
             let roster = state.balanceMode === 'staff' ? state.staff : state.players;
             if (state.balanceMode === 'player') {
                 const catFilter = document.getElementById('balance-category-select').value;
                 roster = roster.filter(p => p.category === catFilter);
             }
 
-            const stats = {}; // Key will be NAME (not ID) to merge duplicates
-            const idToNameMap = {}; // Maps DB-ID to Normalized Name
-
+            const stats = {};
+            const idToNameMap = {}; 
             roster.forEach(p => {
-                const nameKey = p.name.trim().toUpperCase(); // Normalize for merging
+                const nameKey = p.name.trim().toUpperCase(); 
                 idToNameMap[p.id] = nameKey;
-                
                 if (!stats[nameKey]) {
-                    stats[nameKey] = { 
-                        name: p.name, // Keep display name
-                        role: p.role || p.category, 
-                        present: 0, 
-                        absent: 0, 
-                        absentDates: [] 
-                    };
+                    stats[nameKey] = { name: p.name, role: p.role || p.category, present: 0, absent: 0, absentDates: [] };
                 }
             });
 
@@ -359,9 +366,8 @@
                 const date = docSnap.id;
                 const data = docSnap.data();
                 const dayName = new Date(date).toLocaleDateString('es-ES', {weekday:'long', day:'numeric'});
-                
                 for (const [id, status] of Object.entries(data)) {
-                    const nameKey = idToNameMap[id]; // Lookup Name by ID
+                    const nameKey = idToNameMap[id];
                     if (nameKey && stats[nameKey]) {
                         if (status === 'present') stats[nameKey].present++;
                         if (status === 'absent') {
@@ -371,10 +377,8 @@
                     }
                 }
             });
-            // --- SMART MERGE LOGIC END ---
 
             list.innerHTML = '';
-            // Sort by attendance count
             const sortedKeys = Object.keys(stats).sort((a,b) => stats[b].present - stats[a].present);
             
             if(sortedKeys.length === 0) { list.innerHTML = '<div style="text-align:center; padding:20px;">No hay datos para esta categoría/mes.</div>'; return; }
@@ -386,7 +390,6 @@
                 
                 let detailsHTML = '';
                 if(s.absent > 0) {
-                    // Deduplicate dates in case of double entry
                     const uniqueDates = [...new Set(s.absentDates)]; 
                     detailsHTML = `<div style="margin-bottom:5px; color:var(--danger); font-weight:bold;">Faltas registradas:</div><ul style="padding-left:20px; margin:0; list-style:circle;">${uniqueDates.map(d=>`<li>${d}</li>`).join('')}</ul>`;
                 } else {
@@ -416,7 +419,60 @@
             loadBalanceData();
         }
 
-        // --- COMMON LOGIC ---
+        function initAgendaListener() {
+            if(state.agendaUnsubscribe) state.agendaUnsubscribe();
+            state.agendaUnsubscribe = onSnapshot(collection(db, "agenda"), (snapshot) => {
+                const list = document.getElementById('agenda-list');
+                const year = state.agendaDate.getFullYear();
+                const month = state.agendaDate.getMonth() + 1;
+                const startStr = `${year}-${String(month).padStart(2,'0')}-01`;
+                const endStr = `${year}-${String(month).padStart(2,'0')}-31`;
+
+                const events = [];
+                snapshot.forEach(doc => {
+                    const d = doc.data();
+                    if(d.date >= startStr && d.date <= endStr) {
+                        events.push({id: doc.id, ...d});
+                    }
+                });
+
+                list.innerHTML = '';
+                if(events.length === 0) { list.innerHTML = `<div style="text-align:center; padding:40px; color:#555;">Sin eventos este mes.<br><span style="font-size:0.8rem">Pulsa "+" para añadir.</span></div>`; return; }
+
+                events.sort((a,b) => a.date.localeCompare(b.date));
+
+                events.forEach(ev => {
+                    const dateObj = new Date(ev.date);
+                    const dayNum = dateObj.getDate();
+                    const dayName = dateObj.toLocaleDateString('es-ES', { weekday: 'short' }).toUpperCase().replace('.','');
+                    
+                    const item = document.createElement('div');
+                    item.className = 'agenda-item';
+                    item.innerHTML = `
+                        <div class="agenda-date">
+                            <div style="font-size:1.2rem; color:white;">${dayNum}</div>
+                            <div>${dayName}</div>
+                        </div>
+                        <div class="agenda-card type-${ev.type}">
+                            <div class="agenda-header-row">
+                                <h4>${ev.title}</h4>
+                                <div class="type-tag">${ev.type.toUpperCase()}</div>
+                            </div>
+                            ${ev.desc ? `<p>${ev.desc}</p>` : ''}
+                            ${state.isAdmin ? `<button class="btn-del-evt" title="Eliminar">🗑️</button>` : ''}
+                        </div>
+                    `;
+                    if(state.isAdmin) item.querySelector('.btn-del-evt').onclick = async () => { if(confirm("¿Borrar evento?")) { await deleteDoc(doc(db, "agenda", ev.id)); } };
+                    list.appendChild(item);
+                });
+            });
+        }
+
+        function renderAgendaUI() {
+            const dateStr = state.agendaDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+            document.getElementById('agd-month-txt').innerText = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+            initAgendaListener();
+        }
 
         async function toggleAttendance(id, current, type) {
             const next = current === 'present' ? 'absent' : 'present';
@@ -479,8 +535,10 @@
             document.querySelectorAll('.nav-item').forEach(b => b.onclick = () => {
                 document.querySelectorAll('section').forEach(s=>s.classList.add('hidden')); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
                 const t=b.dataset.target; document.getElementById('section-'+t).classList.remove('hidden'); b.classList.add('active');
-                state.currentSection=t; if(t==='physical') initPhysicalListener(); 
+                state.currentSection=t; 
+                if(t==='physical') initPhysicalListener(); 
                 if(t==='balance') renderBalanceUI();
+                if(t==='agenda') renderAgendaUI();
                 else updateDateUI();
             });
 
@@ -497,7 +555,7 @@
             const chDate=(d)=>{ const dt=new Date(state.currentDate); dt.setDate(dt.getDate()+d); state.currentDate=getLocalISODate(dt); updateDateUI(); };
             document.getElementById('prev-date').onclick=()=>chDate(-1); document.getElementById('next-date').onclick=()=>chDate(1);
             const openCal = () => { state.calendarViewDate = new Date(state.currentDate); renderCal(); document.getElementById('calendar-modal').classList.add('active'); };
-            ['open-calendar-btn-1','open-calendar-btn-2','open-calendar-btn-3'].forEach(id=>document.getElementById(id).onclick=openCal);
+            ['open-calendar-btn-1','open-calendar-btn-2','open-calendar-btn-3', 'open-calendar-btn-4'].forEach(id=>document.getElementById(id).onclick=openCal);
             document.getElementById('close-cal').onclick=()=>document.getElementById('calendar-modal').classList.remove('active');
             document.getElementById('cal-prev-month').onclick=()=>{ state.calendarViewDate.setMonth(state.calendarViewDate.getMonth()-1); renderCal(); };
             document.getElementById('cal-next-month').onclick=()=>{ state.calendarViewDate.setMonth(state.calendarViewDate.getMonth()+1); renderCal(); };
@@ -508,27 +566,27 @@
             document.getElementById('btn-delete-entity').onclick=async()=>{ if(confirm("¿Eliminar definitivamente?")) { await deleteDoc(doc(db, state.selectedEntityType==='player'?'players':'staff', state.selectedEntityId)); document.getElementById('history-modal').classList.remove('active'); }};
             document.getElementById('close-viewer').onclick=()=>{ document.getElementById('file-viewer-modal').classList.remove('active'); document.getElementById('viewer-content').innerHTML = ''; };
 
-            // LISTENERS BALANCE
             document.getElementById('bal-prev').onclick = () => { state.balanceDate.setMonth(state.balanceDate.getMonth()-1); renderBalanceUI(); };
             document.getElementById('bal-next').onclick = () => { state.balanceDate.setMonth(state.balanceDate.getMonth()+1); renderBalanceUI(); };
-            
-            document.getElementById('tab-bal-staff').onclick = () => { 
-                state.balanceMode = 'staff'; 
-                document.getElementById('tab-bal-staff').classList.add('active'); 
-                document.getElementById('tab-bal-players').classList.remove('active');
-                document.getElementById('balance-category-select').classList.add('hidden'); // Ocultar filtro
-                renderBalanceUI(); 
-            };
-            
-            document.getElementById('tab-bal-players').onclick = () => { 
-                state.balanceMode = 'player'; 
-                document.getElementById('tab-bal-players').classList.add('active'); 
-                document.getElementById('tab-bal-staff').classList.remove('active');
-                document.getElementById('balance-category-select').classList.remove('hidden'); // Mostrar filtro
-                renderBalanceUI(); 
-            };
-
+            document.getElementById('tab-bal-staff').onclick = () => { state.balanceMode = 'staff'; document.getElementById('tab-bal-staff').classList.add('active'); document.getElementById('tab-bal-players').classList.remove('active'); document.getElementById('balance-category-select').classList.add('hidden'); renderBalanceUI(); };
+            document.getElementById('tab-bal-players').onclick = () => { state.balanceMode = 'player'; document.getElementById('tab-bal-players').classList.add('active'); document.getElementById('tab-bal-staff').classList.remove('active'); document.getElementById('balance-category-select').classList.remove('hidden'); renderBalanceUI(); };
             document.getElementById('balance-category-select').onchange = renderBalanceUI;
+
+            document.getElementById('agd-prev').onclick = () => { state.agendaDate.setMonth(state.agendaDate.getMonth()-1); renderAgendaUI(); };
+            document.getElementById('agd-next').onclick = () => { state.agendaDate.setMonth(state.agendaDate.getMonth()+1); renderAgendaUI(); };
+            document.getElementById('btn-add-event').onclick = () => document.getElementById('event-modal').classList.add('active');
+            document.getElementById('close-event-modal').onclick = () => document.getElementById('event-modal').classList.remove('active');
+            document.getElementById('btn-save-event').onclick = async () => {
+                const dt = document.getElementById('evt-date').value;
+                const tt = document.getElementById('evt-title').value;
+                if(!dt || !tt) return alert("Fecha y Título obligatorios");
+                await addDoc(collection(db, "agenda"), { date: dt, title: tt, type: document.getElementById('evt-type').value, desc: document.getElementById('evt-desc').value });
+                alert("¡Evento guardado!");
+                document.getElementById('event-modal').classList.remove('active');
+            };
+            
+            document.getElementById('tac-prev-date').onclick = () => chDate(-1);
+            document.getElementById('tac-next-date').onclick = () => chDate(1);
         });
 
         function renderCal(){
@@ -549,8 +607,79 @@
         function openAdmin() {
             const body=document.getElementById('modal-body'), title=document.getElementById('modal-title');
             document.getElementById('admin-modal').classList.add('active');
+            
+            // CSV EXPORT LOGIC
+            const exportZoneHTML = `
+                <hr style="border:0; border-top:1px solid #333; margin:20px 0;">
+                <h4 class="font-brand text-muted" style="margin-bottom:10px;">ZONA DE DESCARGA</h4>
+                <button class="btn-export" id="btn-dl-players">📄 Exportar Plantilla (.csv)</button>
+                <button class="btn-export" id="btn-dl-balance">📊 Exportar Balance Mes (.csv)</button>
+            `;
+
+            // COMMON EXPORT HELPER
+            const downloadCSV = (filename, rows) => {
+                const csvContent = "data:text/csv;charset=utf-8,\uFEFF" + rows.map(e => e.join(",")).join("\n");
+                const link = document.createElement("a");
+                link.setAttribute("href", encodeURI(csvContent));
+                link.setAttribute("download", filename);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
+            const setupExportListeners = () => {
+                document.getElementById('btn-dl-players').onclick = () => {
+                    const rows = [["NOMBRE", "CATEGORIA", "DIAS"]];
+                    state.players.forEach(p => rows.push([p.name, p.category.toUpperCase(), p.days || "-"]));
+                    downloadCSV("plantilla_jugadores.csv", rows);
+                };
+                
+                document.getElementById('btn-dl-balance').onclick = async () => {
+                    if(confirm("Se descargará el balance del mes que tengas seleccionado en la pantalla 'Balance'. ¿Continuar?")) {
+                        // Re-fetch balance logic specifically for export
+                        const year = state.balanceDate.getFullYear();
+                        const month = state.balanceDate.getMonth() + 1;
+                        const startStr = `${year}-${String(month).padStart(2,'0')}-01`;
+                        const endStr = `${year}-${String(month).padStart(2,'0')}-31`;
+                        
+                        const colName = state.balanceMode === 'staff' ? 'attendance_staff' : 'attendance';
+                        const q = query(collection(db, colName), where(documentId(), '>=', startStr), where(documentId(), '<=', endStr));
+                        const snapshot = await getDocs(q);
+                        
+                        let roster = state.balanceMode === 'staff' ? state.staff : state.players;
+                        const stats = {};
+                        const idToNameMap = {}; 
+                        roster.forEach(p => {
+                            const nameKey = p.name.trim().toUpperCase(); 
+                            idToNameMap[p.id] = nameKey;
+                            if (!stats[nameKey]) { stats[nameKey] = { name: p.name, role: p.role || p.category, present: 0, absent: 0, absentDates: [] }; }
+                        });
+
+                        snapshot.forEach(docSnap => {
+                            const date = docSnap.id;
+                            const data = docSnap.data();
+                            const dayName = new Date(date).toLocaleDateString('es-ES', {weekday:'long', day:'numeric'});
+                            for (const [id, status] of Object.entries(data)) {
+                                const nameKey = idToNameMap[id];
+                                if (nameKey && stats[nameKey]) {
+                                    if (status === 'present') stats[nameKey].present++;
+                                    if (status === 'absent') { stats[nameKey].absent++; stats[nameKey].absentDates.push(dayName); }
+                                }
+                            }
+                        });
+
+                        const rows = [["NOMBRE", "ROL/CAT", "ASISTENCIAS", "FALTAS", "DETALLE FALTAS"]];
+                        Object.values(stats).forEach(s => {
+                            rows.push([s.name, s.role.toUpperCase(), s.present, s.absent, s.absentDates.join(" | ")]);
+                        });
+                        
+                        downloadCSV(`balance_${year}_${month}.csv`, rows);
+                    }
+                };
+            };
+
             if(state.currentSection==='players'){
-                title.innerText="Jugadores"; body.innerHTML=`<div class="tab-header"><button class="tab-btn active" id="tm">Manual</button><button class="tab-btn" id="tc">Excel</button></div><div id="vm"><input id="n-n" placeholder="Nombre"><select id="n-c"><option value="alevin">Alevín</option><option value="infantil">Infantil</option><option value="benjamin">Benjamín</option><option value="portero">Porteros</option><option value="opengym">Open Gym</option></select><input id="n-d" placeholder="Días (L, M, X, J, V)"><button class="btn-primary" id="b-save">Crear</button></div><div id="vc" class="hidden"><p class="text-muted" style="margin-bottom:10px;">Formato: <b>Nombre, Días, Categoría</b><br>Ej: Alvaro, M, Benjamin</p><textarea id="csv-txt" rows="5"></textarea><button class="btn-primary" id="b-csv">Importar</button></div>`;
+                title.innerText="Jugadores"; body.innerHTML=`<div class="tab-header"><button class="tab-btn active" id="tm">Manual</button><button class="tab-btn" id="tc">Excel</button></div><div id="vm"><input id="n-n" placeholder="Nombre"><select id="n-c"><option value="alevin">Alevín</option><option value="infantil">Infantil</option><option value="benjamin">Benjamín</option><option value="portero">Porteros</option><option value="opengym">Open Gym</option></select><input id="n-d" placeholder="Días (L, M, X, J, V)"><button class="btn-primary" id="b-save">Crear</button></div><div id="vc" class="hidden"><p class="text-muted" style="margin-bottom:10px;">Formato: <b>Nombre, Días, Categoría</b><br>Ej: Alvaro, M, Benjamin</p><textarea id="csv-txt" rows="5"></textarea><button class="btn-primary" id="b-csv">Importar</button></div>` + exportZoneHTML;
                 document.getElementById('tm').onclick=()=>{document.getElementById('vc').classList.add('hidden');document.getElementById('vm').classList.remove('hidden')};
                 document.getElementById('tc').onclick=()=>{document.getElementById('vm').classList.add('hidden');document.getElementById('vc').classList.remove('hidden')};
                 document.getElementById('b-save').onclick=async()=>{ await addDoc(collection(db,"players"),{name:document.getElementById('n-n').value, category:document.getElementById('n-c').value, days:document.getElementById('n-d').value.toUpperCase()}); document.getElementById('admin-modal').classList.remove('active'); };
@@ -559,12 +688,18 @@
                     txt.split('\n').forEach(l=>{ let p=l.includes('\t')?l.split('\t'):l.split(','); if(p.length>=3) b.set(doc(collection(db,"players")),{name:p[0].trim(),days:p[1].trim().toUpperCase(),category:p[2].trim().toLowerCase()}); });
                     await b.commit(); document.getElementById('admin-modal').classList.remove('active');
                 };
+                setupExportListeners();
             } else if(state.currentSection==='staff'){
-                title.innerText="Staff"; body.innerHTML=`<input id="s-n" placeholder="Nombre"><input id="s-r" placeholder="Rol"><select id="s-g"><option value="General">General</option><option value="Alevín">Alevín</option><option value="Infantil">Infantil</option></select><input id="s-d" placeholder="Días (L, M...)"><button class="btn-primary" id="b-s">Crear</button>`;
+                title.innerText="Staff"; body.innerHTML=`<input id="s-n" placeholder="Nombre"><input id="s-r" placeholder="Rol"><select id="s-g"><option value="General">General</option><option value="Alevín">Alevín</option><option value="Infantil">Infantil</option></select><input id="s-d" placeholder="Días (L, M...)"><button class="btn-primary" id="b-s">Crear</button>` + exportZoneHTML;
                 document.getElementById('b-s').onclick=async()=>{ await addDoc(collection(db,"staff"),{name:document.getElementById('s-n').value, role:document.getElementById('s-r').value, group:document.getElementById('s-g').value, days:document.getElementById('s-d').value.toUpperCase()}); document.getElementById('admin-modal').classList.remove('active'); };
+                setupExportListeners();
             } else if(state.currentSection==='material'){
                 title.innerText="Material"; body.innerHTML=`<input id="m-n" placeholder="Item"><input id="m-q" type="number"><button class="btn-primary" id="b-m">Crear</button>`;
                 document.getElementById('b-m').onclick=async()=>{ await addDoc(collection(db,"material"),{name:document.getElementById('m-n').value, qty:Number(document.getElementById('m-q').value), status:'good'}); document.getElementById('admin-modal').classList.remove('active'); };
+            } else {
+                // Generic Export View if not in a specific section
+                title.innerText="Exportar Datos"; body.innerHTML = exportZoneHTML;
+                setupExportListeners();
             }
         }
         
