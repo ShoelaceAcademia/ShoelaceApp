@@ -15,7 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
     <style>
-        /* ESTILOS v8.2 (Visual Visibility Fix) */
+        /* ESTILOS v8.3 (Edit Days Feature) */
         :root { --bg-body: #0a0a0f; --bg-card: #141419; --bg-input: #222228; --text-main: #E0E0E0; --text-muted: #888888; --accent: #00f3ff; --staff-color: #bd00ff; --success: #00ff9d; --danger: #ff3838; --warning: #ffb74d; --event-gold: #ffd700; --radius: 12px; --max-width: 600px; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); height: 100vh; overflow: hidden; font-size: 16px; display: flex; justify-content: center; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
@@ -109,7 +109,6 @@
         .btn-export { background: #222; border: 1px solid #444; color: var(--text-main); padding: 10px; width: 100%; border-radius: 8px; text-align: left; margin-bottom: 8px; transition: 0.2s; }
         .btn-export:active { background: var(--accent); color: black; }
 
-        /* BUTTONS DEL & RESTORE (v8.2 Simplificado) */
         .btn-del-item { background: transparent; border: none; color: var(--danger); font-size: 1.3rem; padding: 5px; cursor: pointer; transition: transform 0.2s; margin-right: 10px; }
         .btn-del-item:active { transform: scale(0.9); }
         
@@ -122,7 +121,7 @@
     <div id="app-wrapper">
         <div id="login-screen">
             <h1 class="font-brand text-accent" style="font-size: 3rem; text-shadow: 0 0 20px var(--accent-dim);">SHOELACE</h1>
-            <p class="text-muted">CONTROL APP v8.2</p>
+            <p class="text-muted">CONTROL APP v8.3</p>
             <div class="login-btn-group">
                 <div class="login-option" onclick="auth.loginAsStaff()"><span style="font-size:2rem; display:block; margin-bottom:10px;">👁️</span><strong>ACCESO STAFF</strong><div class="text-muted" style="font-size:0.8rem;">Solo lectura</div></div>
                 <div class="login-option" onclick="auth.showAdminPass()"><span style="font-size:2rem; display:block; margin-bottom:10px;">🔐</span><strong>ACCESO ADMIN</strong><div class="text-muted" style="font-size:0.8rem;">Gestión completa</div></div>
@@ -240,7 +239,28 @@
 
     <div id="calendar-modal" class="modal"><div class="modal-content"><div class="custom-calendar-header"><button class="nav-arrow" id="cal-prev-month">&#8249;</button><h3 class="font-brand" id="cal-month-year">...</h3><button class="nav-arrow" id="cal-next-month">&#8250;</button></div><div class="calendar-grid" id="calendar-grid"></div><button class="btn-text" style="width:100%; margin-top:20px;" id="close-cal">Cerrar</button></div></div>
     <div id="admin-modal" class="modal"><div class="modal-content"><div class="flex-between" style="margin-bottom:20px;"><h3 class="font-brand text-accent" id="modal-title">Gestión</h3><button class="btn-icon" id="close-admin">✕</button></div><div id="modal-body"></div></div></div>
-    <div id="history-modal" class="modal"><div class="modal-content"><div class="flex-between" style="margin-bottom:10px;"><h3 class="font-brand text-accent" id="h-modal-name">Nombre</h3><button class="btn-icon" id="close-history">✕</button></div><div class="text-muted" style="font-size:0.8rem; margin-bottom:20px;" id="h-modal-details"></div><div style="display:flex; gap:10px; margin-bottom:20px;"><div style="flex:1; background:#222; padding:10px; border-radius:8px; text-align:center;"><div class="text-muted" style="font-size:0.7rem;">Asistencia (Días)</div><div style="font-size:1.5rem; font-weight:bold; color:var(--success);" id="h-modal-percent">...</div></div><div style="flex:1; background:#222; padding:10px; border-radius:8px; text-align:center;"><div class="text-muted" style="font-size:0.7rem;">Faltas</div><div style="font-size:1.5rem; font-weight:bold; color:var(--danger);" id="h-modal-absent">...</div></div></div><h4 style="margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:5px; font-size:0.9rem;">Historial</h4><div id="h-modal-list" style="max-height: 200px; overflow-y:auto; font-size:0.85rem;"></div><button class="btn-text admin-only" style="color:var(--danger); width:100%; margin-top:20px;" id="btn-delete-entity">Eliminar de la Base de Datos</button></div></div>
+    
+    <div id="history-modal" class="modal"><div class="modal-content">
+        <div class="flex-between" style="margin-bottom:10px;">
+            <h3 class="font-brand text-accent" id="h-modal-name">Nombre</h3>
+            <button class="btn-icon" id="close-history">✕</button>
+        </div>
+        <div class="text-muted" style="font-size:0.8rem; margin-bottom:20px; display:flex; align-items:center;" id="h-modal-details"></div>
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <div style="flex:1; background:#222; padding:10px; border-radius:8px; text-align:center;">
+                <div class="text-muted" style="font-size:0.7rem;">Asistencia (Días)</div>
+                <div style="font-size:1.5rem; font-weight:bold; color:var(--success);" id="h-modal-percent">...</div>
+            </div>
+            <div style="flex:1; background:#222; padding:10px; border-radius:8px; text-align:center;">
+                <div class="text-muted" style="font-size:0.7rem;">Faltas</div>
+                <div style="font-size:1.5rem; font-weight:bold; color:var(--danger);" id="h-modal-absent">...</div>
+            </div>
+        </div>
+        <h4 style="margin-bottom:10px; border-bottom:1px solid #333; padding-bottom:5px; font-size:0.9rem;">Historial</h4>
+        <div id="h-modal-list" style="max-height: 200px; overflow-y:auto; font-size:0.85rem;"></div>
+        <button class="btn-text admin-only" style="color:var(--danger); width:100%; margin-top:20px;" id="btn-delete-entity">🗑️ Eliminar de la Base de Datos</button>
+    </div></div>
+    
     <div id="file-viewer-modal" class="modal" style="background:black;"><div style="position:absolute; top:40px; right:20px; z-index:5001;"><button id="close-viewer" class="btn-icon" style="background:rgba(255,255,255,0.2); border-radius:50%; width:40px; height:40px; color:white;">✕</button></div><div id="viewer-content" style="width:100%; height:100%; display:flex; justify-content:center; align-items:center; overflow:hidden;"></div></div>
     
     <div id="event-modal" class="modal"><div class="modal-content"><h3 class="font-brand text-accent" style="margin-bottom:15px;">Nuevo Evento</h3><label class="text-muted" style="font-size:0.8rem;">FECHA</label><input type="date" id="evt-date"><label class="text-muted" style="font-size:0.8rem;">TÍTULO</label><input type="text" id="evt-title" placeholder="Ej: Salida de balón..."><label class="text-muted" style="font-size:0.8rem;">TIPO</label><select id="evt-type"><option value="training">Entrenamiento 🔵</option><option value="match">Partido 🔴</option><option value="event">Evento / Visita 🟡</option><option value="holiday">Festivo / Descanso ⚫</option></select><label class="text-muted" style="font-size:0.8rem;">DETALLES</label><textarea id="evt-desc" rows="3" placeholder="Opcional..."></textarea><button class="btn-primary" id="btn-save-event" style="margin-top:10px;">Guardar</button><button class="btn-text" id="close-event-modal" style="width:100%;">Cancelar</button></div></div>
@@ -318,7 +338,6 @@
             filtered.forEach(p => {
                 const st = state.attendance[p.id] || 'present';
                 
-                // HIDE LOGIC FOR PLAYERS
                 if(st === 'hidden') {
                     hasHidden = true;
                     if(state.isAdmin) {
@@ -330,7 +349,7 @@
                         };
                         hiddenContainer.appendChild(row);
                     }
-                    return; // Skip rendering in main list
+                    return; 
                 }
 
                 const el = document.createElement('div'); el.className = 'list-row';
@@ -352,7 +371,6 @@
                 
                 if(state.isAdmin) {
                     el.querySelector('.check-btn').onclick = () => toggleAttendance(p.id, st, 'player');
-                    // SAFE HIDE LOGIC
                     el.querySelector('.btn-del-player').onclick = async (e) => {
                         e.stopPropagation();
                         if(confirm(`¿Sacar a ${p.name} de la lista de HOY? (No se borra su historial)`)) {
@@ -679,8 +697,9 @@
             document.getElementById('btn-admin').onclick=openAdmin;
             document.getElementById('close-admin').onclick=()=>document.getElementById('admin-modal').classList.remove('active');
             document.getElementById('close-history').onclick=()=>document.getElementById('history-modal').classList.remove('active');
-            // Remove the DELETE action from history modal to be safe
-            document.getElementById('btn-delete-entity').onclick=async()=>{ if(confirm("CUIDADO: Esto eliminará el perfil para siempre. ¿Seguro?")) { await deleteDoc(doc(db, state.selectedEntityType==='player'?'players':'staff', state.selectedEntityId)); document.getElementById('history-modal').classList.remove('active'); }};
+            
+            // ELIMINAR DE BASE DE DATOS (Mantenido para limpiar duplicados)
+            document.getElementById('btn-delete-entity').onclick=async()=>{ if(confirm("CUIDADO: Esto eliminará el perfil para siempre de la base de datos. ¿Seguro?")) { await deleteDoc(doc(db, state.selectedEntityType==='player'?'players':'staff', state.selectedEntityId)); document.getElementById('history-modal').classList.remove('active'); }};
             document.getElementById('close-viewer').onclick=()=>{ document.getElementById('file-viewer-modal').classList.remove('active'); document.getElementById('viewer-content').innerHTML = ''; };
 
             document.getElementById('bal-prev').onclick = () => { state.balanceDate.setMonth(state.balanceDate.getMonth()-1); renderBalanceUI(); };
@@ -697,9 +716,7 @@
                 const dt = document.getElementById('evt-date').value;
                 const tt = document.getElementById('evt-title').value;
                 if(!dt || !tt) return alert("Fecha y Título obligatorios");
-                
                 await addDoc(collection(db, "agenda"), { date: dt, title: tt, type: document.getElementById('evt-type').value, desc: document.getElementById('evt-desc').value });
-                
                 alert("¡Evento guardado!");
                 document.getElementById('event-modal').classList.remove('active');
             };
@@ -822,7 +839,24 @@
             state.selectedEntityId = entity.id; state.selectedEntityType = type;
             document.getElementById('h-modal-name').innerText = entity.name; document.getElementById('history-modal').classList.add('active');
             const d = document.getElementById('h-modal-details');
-            if(type==='player') d.innerHTML = `${entity.category.toUpperCase()} | ${entity.days}`; else d.innerHTML = `${entity.role} | ${entity.group} | ${entity.days}`;
+            
+            // NUEVO: Botón editar días (v8.3)
+            let editBtn = state.isAdmin ? `<button id="btn-edit-days" style="background:transparent; border:1px solid #555; color:var(--accent); border-radius:4px; padding:2px 8px; font-size:0.7rem; margin-left:10px; cursor:pointer;">✏️ Editar días</button>` : '';
+            
+            if(type==='player') d.innerHTML = `${entity.category.toUpperCase()} | <span id="e-days-txt">${entity.days||'TODOS'}</span> ${editBtn}`; 
+            else d.innerHTML = `${entity.role} | ${entity.group} | <span id="e-days-txt">${entity.days||'TODOS'}</span> ${editBtn}`;
+            
+            if(state.isAdmin) {
+                document.getElementById('btn-edit-days').onclick = async () => {
+                    const nd = prompt("Asigna los días (Ej: L, M, X, J, V o TODOS):", entity.days || '');
+                    if(nd !== null) {
+                        const val = nd.trim().toUpperCase();
+                        await updateDoc(doc(db, type==='player'?'players':'staff', entity.id), { days: val });
+                        document.getElementById('e-days-txt').innerText = val;
+                    }
+                };
+            }
+
             const snap = await getDocs(query(collection(db, `${type==='player'?'players':'staff'}/${entity.id}/history`)));
             const list = document.getElementById('h-modal-list'); list.innerHTML = ''; let t=0, a=0, rec=[];
             snap.forEach(x=>rec.push(x.data())); rec.sort((x,y)=>y.date.localeCompare(x.date));
