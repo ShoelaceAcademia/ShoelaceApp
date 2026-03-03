@@ -15,7 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
     <style>
-        /* ESTILOS v8.3 (Edit Days Feature) */
+        /* ESTILOS v8.4 (Asignaciones Puntuales) */
         :root { --bg-body: #0a0a0f; --bg-card: #141419; --bg-input: #222228; --text-main: #E0E0E0; --text-muted: #888888; --accent: #00f3ff; --staff-color: #bd00ff; --success: #00ff9d; --danger: #ff3838; --warning: #ffb74d; --event-gold: #ffd700; --radius: 12px; --max-width: 600px; }
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); color: var(--text-main); height: 100vh; overflow: hidden; font-size: 16px; display: flex; justify-content: center; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
@@ -121,7 +121,7 @@
     <div id="app-wrapper">
         <div id="login-screen">
             <h1 class="font-brand text-accent" style="font-size: 3rem; text-shadow: 0 0 20px var(--accent-dim);">SHOELACE</h1>
-            <p class="text-muted">CONTROL APP v8.3</p>
+            <p class="text-muted">CONTROL APP v8.4</p>
             <div class="login-btn-group">
                 <div class="login-option" onclick="auth.loginAsStaff()"><span style="font-size:2rem; display:block; margin-bottom:10px;">👁️</span><strong>ACCESO STAFF</strong><div class="text-muted" style="font-size:0.8rem;">Solo lectura</div></div>
                 <div class="login-option" onclick="auth.showAdminPass()"><span style="font-size:2rem; display:block; margin-bottom:10px;">🔐</span><strong>ACCESO ADMIN</strong><div class="text-muted" style="font-size:0.8rem;">Gestión completa</div></div>
@@ -330,7 +330,8 @@
             const hiddenSection = document.getElementById('player-hidden-list');
 
             const dayCode = getDayCodeFromDate(state.currentDate);
-            const filtered = state.players.filter(p => p.category === cat && (!p.days || p.days === 'S/D' || p.days === 'Todos' || p.days.includes(dayCode)));
+            // v8.4 FIX: Check if days includes exact current date
+            const filtered = state.players.filter(p => p.category === cat && (!p.days || p.days === 'S/D' || p.days.toUpperCase() === 'TODOS' || p.days.toUpperCase().includes(dayCode) || p.days.includes(state.currentDate)));
             document.getElementById('player-count').innerText = filtered.length;
             
             let hasHidden = false;
@@ -391,7 +392,8 @@
             const hiddenSection = document.getElementById('staff-hidden-list');
             
             const dayCode = getDayCodeFromDate(state.currentDate);
-            const filtered = state.staff.filter(s => !s.days || s.days.toUpperCase() === 'TODOS' || s.days.toUpperCase().includes(dayCode));
+            // v8.4 FIX: Check if days includes exact current date
+            const filtered = state.staff.filter(s => !s.days || s.days.toUpperCase() === 'TODOS' || s.days.toUpperCase().includes(dayCode) || s.days.includes(state.currentDate));
             
             let hasHidden = false;
 
@@ -697,8 +699,6 @@
             document.getElementById('btn-admin').onclick=openAdmin;
             document.getElementById('close-admin').onclick=()=>document.getElementById('admin-modal').classList.remove('active');
             document.getElementById('close-history').onclick=()=>document.getElementById('history-modal').classList.remove('active');
-            
-            // ELIMINAR DE BASE DE DATOS (Mantenido para limpiar duplicados)
             document.getElementById('btn-delete-entity').onclick=async()=>{ if(confirm("CUIDADO: Esto eliminará el perfil para siempre de la base de datos. ¿Seguro?")) { await deleteDoc(doc(db, state.selectedEntityType==='player'?'players':'staff', state.selectedEntityId)); document.getElementById('history-modal').classList.remove('active'); }};
             document.getElementById('close-viewer').onclick=()=>{ document.getElementById('file-viewer-modal').classList.remove('active'); document.getElementById('viewer-content').innerHTML = ''; };
 
@@ -811,11 +811,16 @@
                 };
             };
 
+            // v8.4 FIX: Added "Solo para HOY" buttons in Admin modal
             if(state.currentSection==='players'){
-                title.innerText="Jugadores"; body.innerHTML=`<div class="tab-header"><button class="tab-btn active" id="tm">Manual</button><button class="tab-btn" id="tc">Excel</button></div><div id="vm"><input id="n-n" placeholder="Nombre"><select id="n-c"><option value="alevin">Alevín</option><option value="infantil">Infantil</option><option value="benjamin">Benjamín</option><option value="portero">Porteros</option><option value="opengym">Open Gym</option></select><input id="n-d" placeholder="Días (L, M, X, J, V)"><button class="btn-primary" id="b-save">Crear</button></div><div id="vc" class="hidden"><p class="text-muted" style="margin-bottom:10px;">Formato: <b>Nombre, Días, Categoría</b><br>Ej: Alvaro, M, Benjamin</p><textarea id="csv-txt" rows="5"></textarea><button class="btn-primary" id="b-csv">Importar</button></div>` + exportZoneHTML;
+                title.innerText="Jugadores"; body.innerHTML=`<div class="tab-header"><button class="tab-btn active" id="tm">Manual</button><button class="tab-btn" id="tc">Excel</button></div><div id="vm"><input id="n-n" placeholder="Nombre"><select id="n-c"><option value="alevin">Alevín</option><option value="infantil">Infantil</option><option value="benjamin">Benjamín</option><option value="portero">Porteros</option><option value="opengym">Open Gym</option></select><input id="n-d" placeholder="Días (L, M, X, J, V)"><button class="btn-primary" id="b-save">Crear Fijo</button><button class="btn-export" id="b-save-hoy" style="margin-top:10px; text-align:center; color:var(--accent);">+ Crear SOLO para HOY (Puntual)</button></div><div id="vc" class="hidden"><p class="text-muted" style="margin-bottom:10px;">Formato: <b>Nombre, Días, Categoría</b><br>Ej: Alvaro, M, Benjamin</p><textarea id="csv-txt" rows="5"></textarea><button class="btn-primary" id="b-csv">Importar</button></div>` + exportZoneHTML;
                 document.getElementById('tm').onclick=()=>{document.getElementById('vc').classList.add('hidden');document.getElementById('vm').classList.remove('hidden')};
                 document.getElementById('tc').onclick=()=>{document.getElementById('vm').classList.add('hidden');document.getElementById('vc').classList.remove('hidden')};
+                
                 document.getElementById('b-save').onclick=async()=>{ await addDoc(collection(db,"players"),{name:document.getElementById('n-n').value, category:document.getElementById('n-c').value, days:document.getElementById('n-d').value.toUpperCase()}); document.getElementById('admin-modal').classList.remove('active'); };
+                // Crear SOLO HOY Player
+                document.getElementById('b-save-hoy').onclick=async()=>{ await addDoc(collection(db,"players"),{name:document.getElementById('n-n').value, category:document.getElementById('n-c').value, days:state.currentDate}); document.getElementById('admin-modal').classList.remove('active'); };
+                
                 document.getElementById('b-csv').onclick=async()=>{
                     const txt=document.getElementById('csv-txt').value; if(!txt)return; const b=writeBatch(db);
                     txt.split('\n').forEach(l=>{ let p=l.includes('\t')?l.split('\t'):l.split(','); if(p.length>=3) b.set(doc(collection(db,"players")),{name:p[0].trim(),days:p[1].trim().toUpperCase(),category:p[2].trim().toLowerCase()}); });
@@ -823,8 +828,12 @@
                 };
                 setupExportListeners();
             } else if(state.currentSection==='staff'){
-                title.innerText="Staff"; body.innerHTML=`<input id="s-n" placeholder="Nombre"><input id="s-r" placeholder="Rol"><select id="s-g"><option value="General">General</option><option value="Alevín">Alevín</option><option value="Infantil">Infantil</option></select><input id="s-d" placeholder="Días (L, M...)"><button class="btn-primary" id="b-s">Crear</button>` + exportZoneHTML;
+                title.innerText="Staff"; body.innerHTML=`<input id="s-n" placeholder="Nombre"><input id="s-r" placeholder="Rol"><select id="s-g"><option value="General">General</option><option value="Alevín">Alevín</option><option value="Infantil">Infantil</option></select><input id="s-d" placeholder="Días (L, M...)"><button class="btn-primary" id="b-s">Crear Fijo</button><button class="btn-export" id="b-s-hoy" style="margin-top:10px; text-align:center; color:var(--accent);">+ Crear SOLO para HOY (Puntual)</button>` + exportZoneHTML;
+                
                 document.getElementById('b-s').onclick=async()=>{ await addDoc(collection(db,"staff"),{name:document.getElementById('s-n').value, role:document.getElementById('s-r').value, group:document.getElementById('s-g').value, days:document.getElementById('s-d').value.toUpperCase()}); document.getElementById('admin-modal').classList.remove('active'); };
+                // Crear SOLO HOY Staff
+                document.getElementById('b-s-hoy').onclick=async()=>{ await addDoc(collection(db,"staff"),{name:document.getElementById('s-n').value, role:document.getElementById('s-r').value, group:document.getElementById('s-g').value, days:state.currentDate}); document.getElementById('admin-modal').classList.remove('active'); };
+                
                 setupExportListeners();
             } else if(state.currentSection==='material'){
                 title.innerText="Material"; body.innerHTML=`<input id="m-n" placeholder="Item"><input id="m-q" type="number"><button class="btn-primary" id="b-m">Crear</button>`;
@@ -840,8 +849,11 @@
             document.getElementById('h-modal-name').innerText = entity.name; document.getElementById('history-modal').classList.add('active');
             const d = document.getElementById('h-modal-details');
             
-            // NUEVO: Botón editar días (v8.3)
-            let editBtn = state.isAdmin ? `<button id="btn-edit-days" style="background:transparent; border:1px solid #555; color:var(--accent); border-radius:4px; padding:2px 8px; font-size:0.7rem; margin-left:10px; cursor:pointer;">✏️ Editar días</button>` : '';
+            // v8.4 FIX: Added "Traer HOY" button in profile
+            let editBtn = state.isAdmin ? `
+                <button id="btn-edit-days" style="background:transparent; border:1px solid #555; color:var(--accent); border-radius:4px; padding:2px 8px; font-size:0.7rem; margin-left:10px; cursor:pointer;">✏️ Editar</button>
+                <button id="btn-add-today" style="background:transparent; border:1px solid var(--success); color:var(--success); border-radius:4px; padding:2px 8px; font-size:0.7rem; margin-left:5px; cursor:pointer;">➕ Traer HOY</button>
+            ` : '';
             
             if(type==='player') d.innerHTML = `${entity.category.toUpperCase()} | <span id="e-days-txt">${entity.days||'TODOS'}</span> ${editBtn}`; 
             else d.innerHTML = `${entity.role} | ${entity.group} | <span id="e-days-txt">${entity.days||'TODOS'}</span> ${editBtn}`;
@@ -853,6 +865,18 @@
                         const val = nd.trim().toUpperCase();
                         await updateDoc(doc(db, type==='player'?'players':'staff', entity.id), { days: val });
                         document.getElementById('e-days-txt').innerText = val;
+                    }
+                };
+
+                document.getElementById('btn-add-today').onclick = async () => {
+                    if(entity.days && entity.days.includes(state.currentDate)) {
+                        return alert("Ya está en la lista de hoy.");
+                    }
+                    if(confirm(`¿Añadir a ${entity.name} a la lista de HOY puntualmente?`)) {
+                        const newDays = entity.days ? entity.days + ", " + state.currentDate : state.currentDate;
+                        await updateDoc(doc(db, type==='player'?'players':'staff', entity.id), { days: newDays });
+                        document.getElementById('e-days-txt').innerText = newDays;
+                        document.getElementById('history-modal').classList.remove('active');
                     }
                 };
             }
